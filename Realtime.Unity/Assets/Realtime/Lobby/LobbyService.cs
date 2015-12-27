@@ -74,6 +74,11 @@ namespace Realtime.Lobby
         public event Action<UserDetails> OnRoomUserRemove = delegate { };
 
         /// <summary>
+        /// When room authority changes
+        /// </summary>
+        public event Action<UserDetails> OnRoomAuthority = delegate { };
+
+        /// <summary>
         /// Raised when self joins the lobby
         /// </summary>
         public event Action OnLobbyEnter = delegate { };
@@ -631,7 +636,7 @@ namespace Realtime.Lobby
                     if (!auth.Equals(RoomAuthority))
                     {
                         RoomAuthority = auth;
-                        OnRoomUpdate(Room);
+                        OnRoomAuthority(RoomAuthority);
                     }
                 }
             }
@@ -666,8 +671,7 @@ namespace Realtime.Lobby
 
             _client.Send(channel, string.Format("{0}{1}{2}", key, Seperator, json));
         }
-
-
+        
         void _client_OnUnsubscribed(string channel)
         {
             if (channel == LOBBY)
