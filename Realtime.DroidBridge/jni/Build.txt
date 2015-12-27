@@ -1,0 +1,13 @@
+http://developer.android.com/ndk/guides/ndk-build.html#ifc
+
+1) Open CMD
+2) Navigate to project jni folder
+3) run ndk-build
+
+
+cd E:\Projects\Realtime\Realtime.Unity3d\v3\Realtime.DroidBridge\jni
+E:\
+D:\Android\sdk\ndk-bundle\ndk-build clean
+D:\Android\sdk\ndk-bundle\ndk-build
+
+
