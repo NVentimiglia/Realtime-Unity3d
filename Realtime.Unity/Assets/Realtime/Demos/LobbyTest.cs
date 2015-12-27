@@ -209,7 +209,14 @@ namespace Realtime.Demos
             TerminalModel.LogImportant("Lobby Users :");
             foreach (var user in _lobby.LobbyUsers)
             {
-                Debug.Log(user.UserName);
+                if (user.Equals(_lobby.User))
+                {
+                    Debug.Log(user.UserName + " (Self)");
+                }
+                else
+                {
+                    Debug.Log(user.UserName);
+                }
             }
         }
 
@@ -221,7 +228,25 @@ namespace Realtime.Demos
                 TerminalModel.LogImportant("Room Users : " + _lobby.Room.RoomName);
                 foreach (var user in _lobby.RoomUsers)
                 {
-                    Debug.Log(user.UserName);
+                    if (_lobby.IsAuthority(user))
+                    {
+                        if (user.Equals(_lobby.User))
+                        {
+                            Debug.Log(user.UserName + " (Authority, Self)");
+                        }
+                        else
+                        {
+                            Debug.Log(user.UserName + " (Authority)");
+                        }
+                    }
+                    else if (user.Equals(_lobby.User))
+                    {
+                        Debug.Log(user.UserName + " (Self)");
+                    }
+                    else
+                    {
+                        Debug.Log(user.UserName);
+                    }
                 }
 
             }

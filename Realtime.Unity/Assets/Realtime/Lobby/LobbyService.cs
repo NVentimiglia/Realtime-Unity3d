@@ -97,7 +97,7 @@ namespace Realtime.Lobby
         /// Raised when the room is updated
         /// </summary>
         public event Action<RoomDetails> OnRoomUpdate = delegate { };
-
+        
         #endregion
 
         #region properties
@@ -778,6 +778,12 @@ namespace Realtime.Lobby
 
         void _client_OnDisconnected()
         {
+            LobbyUsers.Clear();
+            RoomUsers.Clear();
+            InLobby = false;
+            InRoom = false;
+            Room = null;
+
             State = ConnectionState.Disconnected;
             OnState(State);
 
@@ -812,19 +818,30 @@ namespace Realtime.Lobby
 
         void OnOrtcMessage(string channel, string message)
         {
-            var proxy = message.Split(new[] { Seperator }, StringSplitOptions.None);
-            var type = LobbyMessage.GetTypeFromKey(int.Parse(proxy[0]));
-            var mjson = proxy[1];
+            if (channel == OrtcDisconnected)
+            {
+                var model = JsonUtility.FromJson<OrtcAnnouncement>(message);
 
-            if (type == null)
-                return;
+                //Send via messenger. Routed below
+                LobbyMessenger.Publish(channel, model, typeof(OrtcAnnouncement));
+            }
+            else
+            {
+                var proxy = message.Split(new[] { Seperator }, StringSplitOptions.None);
+                var type = LobbyMessage.GetTypeFromKey(int.Parse(proxy[0]));
+                var mjson = proxy[1];
 
-            Debug.Log("LobbyService:OnRoomMessage " + type.Name);
+                if (type == null)
+                    return;
 
-            var model = JsonUtility.FromJson(mjson, type);
+                Debug.Log("LobbyService:OnRoomMessage " + type.Name);
 
-            //Send via messenger. Routed below
-            LobbyMessenger.Publish(channel, model, type);
+                var model = JsonUtility.FromJson(mjson, type);
+
+                //Send via messenger. Routed below
+                LobbyMessenger.Publish(channel, model, type);
+            }
+
         }
 
         #endregion
@@ -910,31 +927,24 @@ namespace Realtime.Lobby
 
         void OnUserLeaveMessage(string channel, UserLeaveMessage model)
         {
-            if (channel == LOBBY)
+            var first = LobbyUsers.FirstOrDefault(o => o.UserId == model.UserId);
+            if (first != null)
             {
-                var first = LobbyUsers.FirstOrDefault(o => o.UserId == model.UserId);
-                if (first != null)
-                {
-                    Debug.Log("LobbyUserRemoved - " + first.UserName);
-                    LobbyUsers.Remove(first);
-                    OnLobbyUserRemove(first);
-                    if (IsAuthority())
-                        OnRoomChanged();
-                }
-
+                Debug.Log("LobbyUserRemoved - " + first.UserName);
+                LobbyUsers.Remove(first);
+                OnLobbyUserRemove(first);
+                if (IsAuthority())
+                    OnRoomChanged();
             }
-            else
+            var second = RoomUsers.FirstOrDefault(o => o.UserId == model.UserId);
+            if (second != null)
             {
-                var first = RoomUsers.FirstOrDefault(o => o.UserId == model.UserId);
-                if (first != null)
-                {
-                    Debug.Log("RoomUserRemoved - " + first.UserName);
-                    RoomUsers.Remove(first);
-                    OnRoomUserRemove(first);
+                Debug.Log("RoomUserRemoved - " + second.UserName);
+                RoomUsers.Remove(second);
+                OnRoomUserRemove(second);
 
-                    if (IsAuthority())
-                        OnRoomChanged();
-                }
+                if (IsAuthority())
+                    OnRoomChanged();
             }
         }
 

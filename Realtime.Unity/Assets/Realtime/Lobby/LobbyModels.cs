@@ -31,8 +31,7 @@ namespace Realtime.Lobby
 
         public bool Equals(UserDetails other)
         {
-
-            return other != null && other.UserId.Equals(UserId);
+            return other != null && UserId == other.UserId;
         }
     }
 
