@@ -2,7 +2,7 @@
 
 The Realtime Framework Messaging Service is a highly-scalable pub/sub message broker. Using your favorite programming language you'll be able to broadcast messages to millions of users, reliably and securely. It's all in the cloud so you don't need to manage servers.
 
-##  WHY SHOULD YOU USE THE REALTIME FRAMEWORK TO BUILD YOUR COLLABORATIVE APPLICATION?
+##  WHY REALTIME FRAMEWORK ?
 
 **It's cloud-hosted**
 You just use the API and we take care of all the infrastructure to make it work around the world.
