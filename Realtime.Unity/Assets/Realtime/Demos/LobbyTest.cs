@@ -254,7 +254,10 @@ namespace Realtime.Demos
 
         void FindRooms()
         {
-            _lobby.FindRooms();
+            _lobby.FindRooms(room =>
+            {
+                Debug.Log("Found Room : "+ room.Room.RoomName);
+            });
         }
 
         void Subscribe()
@@ -295,6 +298,7 @@ namespace Realtime.Demos
         {
             _lobby.SendLobbyChat("Hello From " + _lobby.User.UserName);
         }
+
         void ChatRoom()
         {
             _lobby.SendRoomChat("Hello From " + _lobby.User.UserName);

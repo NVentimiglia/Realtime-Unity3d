@@ -29,6 +29,11 @@ namespace Realtime.Lobby
         public long JoinedLobby = -1;
         public long JoinedRoom = -1;
 
+        public bool IsAuthority
+        {
+            get { return LobbyService.Instance.InRoom && LobbyService.Instance.RoomAuthority.Equals(this); }
+        }
+
         public bool Equals(UserDetails other)
         {
             return other != null && UserId == other.UserId;
@@ -91,6 +96,13 @@ namespace Realtime.Lobby
     {
         public RoomDetails Room;
         public UserDetails[] Users = new UserDetails[0];
+        public UserDetails Host
+        {
+            get
+            {
+                return Users.Where(o => o.JoinedRoom > 0).OrderBy(o => o.JoinedRoom).FirstOrDefault();
+            }
+        }
     }
 
     /// <summary>

@@ -44,22 +44,22 @@ namespace Realtime.Lobby
 
         #region events
         /// <summary>
-        /// Connection state
+        /// Connection state. eg : connected, reconnecting
         /// </summary>
         public event Action<ConnectionState> OnState = delegate { };
 
         /// <summary>
-        /// Raised when a new room is available
+        /// Raised when a new room is available. This is in response to the FindRoom request
         /// </summary>
         public event Action<RoomFindResponse> OnRoomFound = delegate { };
 
         /// <summary>
-        /// when a peer is added to the room
+        /// when a peer joins to the lobby
         /// </summary>
         public event Action<UserDetails> OnLobbyUserAdd = delegate { };
 
         /// <summary>
-        /// when a peer is removed from the room
+        /// when a peer leaves the lobby
         /// </summary>
         public event Action<UserDetails> OnLobbyUserRemove = delegate { };
 
@@ -74,12 +74,12 @@ namespace Realtime.Lobby
         public event Action<UserDetails> OnRoomUserRemove = delegate { };
 
         /// <summary>
-        /// Raised when self leaves a room
+        /// Raised when self joins the lobby
         /// </summary>
         public event Action OnLobbyEnter = delegate { };
 
         /// <summary>
-        /// Raised when self joins a room
+        /// Raised when self leaves the lobby
         /// </summary>
         public event Action OnLobbyExit = delegate { };
 
@@ -94,10 +94,10 @@ namespace Realtime.Lobby
         public event Action<RoomDetails> OnRoomEnter = delegate { };
 
         /// <summary>
-        /// Raised when the room is updated
+        /// Raised when the room is updated. eg, authority changes
         /// </summary>
         public event Action<RoomDetails> OnRoomUpdate = delegate { };
-        
+
         #endregion
 
         #region properties
@@ -135,6 +135,11 @@ namespace Realtime.Lobby
         /// Users in the room
         /// </summary>
         public List<UserDetails> RoomUsers { get; set; }
+
+        /// <summary>
+        /// Current Authority
+        /// </summary>
+        public UserDetails RoomAuthority { get; protected set; }
 
         #endregion
 
@@ -228,7 +233,7 @@ namespace Realtime.Lobby
         /// <summary>
         /// Sends a request for rooms
         /// </summary>
-        public void FindRooms()
+        public void FindRooms(Action<RoomFindResponse> callback)
         {
             if (State != ConnectionState.Connected)
             {
@@ -242,6 +247,7 @@ namespace Realtime.Lobby
                 return;
             }
 
+            findCallback = callback;
 
             var m = LobbyMessage.GetDefault<RoomFindRequest>();
             m.UserId = User.UserId;
@@ -384,7 +390,10 @@ namespace Realtime.Lobby
 
             Room.RoomName = name;
 
-            OnRoomChanged();
+            var details = LobbyMessage.GetDefault<RoomFindResponse>();
+            details.Room = Room;
+            details.Users = RoomUsers.ToArray();
+
         }
 
         /// <summary>
@@ -407,7 +416,9 @@ namespace Realtime.Lobby
 
             _pendingRoom = null;
 
+            InRoom = false;
             RoomUsers.Clear();
+            RoomAuthority = null;
         }
 
         /// <summary>
@@ -426,9 +437,7 @@ namespace Realtime.Lobby
         /// <returns></returns>
         public bool IsAuthority(UserDetails user)
         {
-            var auth = RoomUsers.Where(o => o.JoinedRoom > 0).OrderBy(o => o.JoinedRoom).FirstOrDefault();
-
-            return auth != null && auth.Equals(user);
+            return user.IsAuthority;
         }
         #endregion
 
@@ -575,6 +584,7 @@ namespace Realtime.Lobby
 
         Action<bool> roomJoinCallback;
         Action<bool> lobbyJoinCallback;
+        Action<RoomFindResponse> findCallback;
         Action<ConnectionState> connectCallback;
         RoomDetails _pendingRoom;
 
@@ -610,6 +620,27 @@ namespace Realtime.Lobby
             RoomUsers = new List<UserDetails>();
         }
 
+        void SetAuthority()
+        {
+            if (InRoom)
+            {
+                var auth  = RoomUsers.Where(o => o.JoinedRoom > 0).OrderBy(o => o.JoinedRoom).FirstOrDefault();
+
+                if (auth != null)
+                {
+                    if (!auth.Equals(RoomAuthority))
+                    {
+                        RoomAuthority = auth;
+                        OnRoomUpdate(Room);
+                    }
+                }
+            }
+            else
+            {
+                RoomAuthority = null;
+            }
+        }
+
         void EnablePresence(string channel)
         {
             PresenceClient.EnablePresence(Url, IsCluster, AppKey, PrivateKey, channel, true,
@@ -636,17 +667,6 @@ namespace Realtime.Lobby
             _client.Send(channel, string.Format("{0}{1}{2}", key, Seperator, json));
         }
 
-        void OnRoomChanged()
-        {
-            var details = LobbyMessage.GetDefault<RoomFindResponse>();
-            details.Room = Room;
-            details.Users = RoomUsers.ToArray();
-
-            if (InLobby)
-                SendRPC(LOBBY, details);
-
-            SendRPC(Room.RoomId, details);
-        }
 
         void _client_OnUnsubscribed(string channel)
         {
@@ -664,6 +684,7 @@ namespace Realtime.Lobby
                 Room = null;
                 InRoom = false;
                 RoomUsers.Clear();
+                SetAuthority();
                 OnRoomExit();
                 Debug.Log("LobbyService ExitRoom");
             }
@@ -693,6 +714,7 @@ namespace Realtime.Lobby
                 User.JoinedRoom = DateTime.UtcNow.Ticks;
                 RoomUsers.RemoveAll(o => o.UserId == User.UserId);
                 RoomUsers.Add(User);
+                SetAuthority();
                 InRoom = true;
                 Room = _pendingRoom;
                 OnRoomEnter(Room);
@@ -707,6 +729,7 @@ namespace Realtime.Lobby
                 var dto = LobbyMessage.GetDefault<RoomFindResponse>();
                 dto.Room = Room;
                 dto.Users = RoomUsers.ToArray();
+                //TODO HOST
                 SendRPC(LOBBY, dto);
 
                 _pendingRoom = null;
@@ -759,6 +782,7 @@ namespace Realtime.Lobby
                 RoomUsers.RemoveAll(o => o.UserId == User.UserId);
                 RoomUsers.Add(User);
                 InRoom = true;
+                SetAuthority();
                 OnRoomEnter(Room);
                 SendRPC(Room.RoomId, User);
 
@@ -766,6 +790,7 @@ namespace Realtime.Lobby
                 var dto = LobbyMessage.GetDefault<RoomFindResponse>();
                 dto.Room = Room;
                 dto.Users = RoomUsers.ToArray();
+                //TODO HOST
                 SendRPC(LOBBY, dto);
 
                 _pendingRoom = null;
@@ -780,9 +805,13 @@ namespace Realtime.Lobby
         {
             LobbyUsers.Clear();
             RoomUsers.Clear();
+            RoomAuthority = null;
             InLobby = false;
             InRoom = false;
             Room = null;
+            SetAuthority();
+
+            findCallback = null;
 
             State = ConnectionState.Disconnected;
             OnState(State);
@@ -880,8 +909,7 @@ namespace Realtime.Lobby
                 Debug.Log("RoomUserRemoved - " + roomu.UserName);
                 RoomUsers.Remove(roomu);
                 OnRoomUserRemove(roomu);
-                if (IsAuthority())
-                    OnRoomChanged();
+                SetAuthority();
             }
         }
 
@@ -913,14 +941,13 @@ namespace Realtime.Lobby
                 {
                     RoomUsers.Add(User);
                     OnRoomUserAdd(User);
+                    SetAuthority();
                 }
                 else
                 {
                     RoomUsers.Add(model);
                     OnRoomUserAdd(model);
-
-                    if (IsAuthority())
-                        OnRoomChanged();
+                    SetAuthority();
                 }
             }
         }
@@ -933,8 +960,6 @@ namespace Realtime.Lobby
                 Debug.Log("LobbyUserRemoved - " + first.UserName);
                 LobbyUsers.Remove(first);
                 OnLobbyUserRemove(first);
-                if (IsAuthority())
-                    OnRoomChanged();
             }
             var second = RoomUsers.FirstOrDefault(o => o.UserId == model.UserId);
             if (second != null)
@@ -942,9 +967,7 @@ namespace Realtime.Lobby
                 Debug.Log("RoomUserRemoved - " + second.UserName);
                 RoomUsers.Remove(second);
                 OnRoomUserRemove(second);
-
-                if (IsAuthority())
-                    OnRoomChanged();
+                SetAuthority();
             }
         }
 
@@ -975,6 +998,7 @@ namespace Realtime.Lobby
                 Debug.Log("RoomUserAdded - " + model.User.UserId);
                 RoomUsers.RemoveAll(o => o.UserId == model.User.UserId);
                 RoomUsers.Add(model.User);
+                SetAuthority();
                 OnRoomUserAdd(model.User);
             }
         }
@@ -1011,6 +1035,8 @@ namespace Realtime.Lobby
         {
             Debug.Log("RoomFound - " + model.Room.RoomName + " " + model.Users.Length);
             OnRoomFound(model);
+            if (findCallback != null)
+                findCallback(model);
         }
 
         #endregion
