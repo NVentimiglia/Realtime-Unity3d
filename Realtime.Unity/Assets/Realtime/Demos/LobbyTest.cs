@@ -6,8 +6,8 @@
 //  -------------------------------------
 using System;
 using System.Linq;
-using Assets.Realtime.Lobby;
 using Foundation.Terminal;
+using Realtime.Lobby;
 using Realtime.Ortc;
 using Realtime.Ortc.Api;
 using UnityEngine;
@@ -20,6 +20,11 @@ namespace Realtime.Demos
     [AddComponentMenu("Realtime/Demos/LobbyTest")]
     public class LobbyTest : MonoBehaviour
     {
+        [Serializable]
+        public class CustomRPC : LobbyMessage
+        {
+            public string Message;
+        }
 
         /// <summary>
         /// 
@@ -49,6 +54,8 @@ namespace Realtime.Demos
 
             _lobby.OnRoomFound += _lobby_OnRoomFound;
             _lobby.OnState += _lobby_OnState;
+
+            _lobby.Subscribe<CustomRPC>(OnCustomRPC);
         }
 
         private void _lobby_OnState(LobbyService.ConnectionState obj)
@@ -60,6 +67,11 @@ namespace Realtime.Demos
         private void _lobby_OnRoomFound(RoomFindResponse obj)
         {
             _lastRoom = obj.Room;
+        }
+
+        void OnCustomRPC(string channel, CustomRPC model)
+        {
+            Debug.Log("Got Custom RPC " + model.Message);
         }
 
         protected void Start()
@@ -149,6 +161,11 @@ namespace Realtime.Demos
                 Method = ChatUser
             });
 
+            TerminalModel.Add(new TerminalCommand
+            {
+                Label = "Custom RPC",
+                Method = DoRPC
+            });
             //
         }
 
@@ -256,6 +273,11 @@ namespace Realtime.Demos
         void ChatRoom()
         {
             _lobby.SendRoomChat("Hello From " + _lobby.User.UserName);
+        }
+
+        void DoRPC()
+        {
+            _lobby.SendLobbyRPC(new CustomRPC { Message = _lobby.User.UserName });
         }
 
         #endregion

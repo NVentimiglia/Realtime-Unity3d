@@ -5,7 +5,7 @@ using Realtime.Ortc;
 using Realtime.Ortc.Api;
 using UnityEngine;
 
-namespace Assets.Realtime.Lobby
+namespace Realtime.Lobby
 {
 
     /// <summary>
@@ -98,17 +98,6 @@ namespace Assets.Realtime.Lobby
         /// </summary>
         public event Action<RoomDetails> OnRoomUpdate = delegate { };
 
-
-        // Chats
-        public event Action<ChatMessage> OnLobbyChat = delegate { };
-        public event Action<ChatMessage> OnRoomChat = delegate { };
-        public event Action<ChatMessage> OnUserChat = delegate { };
-
-        // pcs
-        public event Action<Type, string> OnLobbyRpc = delegate { };
-        public event Action<Type, string> OnRoomyRpc = delegate { };
-        public event Action<Type, string> OnUserRpc = delegate { };
-
         #endregion
 
         #region properties
@@ -164,6 +153,8 @@ namespace Assets.Realtime.Lobby
         /// <param name="client"></param>
         /// <param name="appKey"></param>
         /// <param name="privateKey"></param>
+        /// <param name="url"></param>
+        /// <param name="isCluster"></param>
         /// <returns></returns>
         public static LobbyService Init(IOrtcClient client, string appKey, string privateKey, string url, bool isCluster)
         {
@@ -273,7 +264,7 @@ namespace Assets.Realtime.Lobby
 
             EnablePresence(LOBBY);
 
-            _client.Subscribe(LOBBY, true, OnLobbyMessage);
+            _client.Subscribe(LOBBY, true, OnOrtcMessage);
 
         }
 
@@ -309,7 +300,6 @@ namespace Assets.Realtime.Lobby
 
         #region Room
 
-
         /// <summary>
         /// Subscribes to the lobby
         /// </summary>
@@ -339,14 +329,13 @@ namespace Assets.Realtime.Lobby
             roomJoinCallback = callback;
 
             _pendingRoom = room;
-            _client.Subscribe(room.RoomId, true, OnRoomMessage);
+            _client.Subscribe(room.RoomId, true, OnOrtcMessage);
         }
 
         /// <summary>
         /// Creates a new room
         /// </summary>
         /// <param name="name">friendly name</param>
-        /// <param name="properties"></param>
         /// <param name="callback"></param>
         public void CreateRoom(string name, Action<bool> callback)
         {
@@ -371,7 +360,7 @@ namespace Assets.Realtime.Lobby
 
             roomJoinCallback = callback;
 
-            _client.Subscribe(_pendingRoom.RoomId, true, OnRoomMessage);
+            _client.Subscribe(_pendingRoom.RoomId, true, OnOrtcMessage);
         }
 
         /// <summary>
@@ -547,6 +536,30 @@ namespace Assets.Realtime.Lobby
 
         #endregion
 
+        #region receiving
+
+        /// <summary>
+        /// Add a listener
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="callback"></param>
+        public void Subscribe<T>(LobbyMessenger<T>.LobbyMessageDelegate callback) where T : LobbyMessage
+        {
+            LobbyMessenger<T>.Subscribe(callback);
+        }
+
+        /// <summary>
+        /// Remove a listener
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="callback"></param>
+        public void Unsubscribe<T>(LobbyMessenger<T>.LobbyMessageDelegate callback) where T : LobbyMessage
+        {
+            LobbyMessenger<T>.Unsubscribe(callback);
+        }
+
+        #endregion
+
         #endregion
 
         #region internal
@@ -591,6 +604,8 @@ namespace Assets.Realtime.Lobby
             _client.OnSubscribed += _client_OnSubscribed;
             _client.OnUnsubscribed += _client_OnUnsubscribed;
 
+            MapRoutes();
+
             LobbyUsers = new List<UserDetails>();
             RoomUsers = new List<UserDetails>();
         }
@@ -633,7 +648,7 @@ namespace Assets.Realtime.Lobby
             SendRPC(Room.RoomId, details);
         }
 
-        private void _client_OnUnsubscribed(string channel)
+        void _client_OnUnsubscribed(string channel)
         {
             if (channel == LOBBY)
             {
@@ -654,7 +669,7 @@ namespace Assets.Realtime.Lobby
             }
         }
 
-        private void _client_OnSubscribed(string channel)
+        void _client_OnSubscribed(string channel)
         {
             if (channel == LOBBY)
             {
@@ -717,255 +732,13 @@ namespace Assets.Realtime.Lobby
             SendRPC(request.RoomId, request);
         }
 
-        void OnOrtcDisconnectedMessage(string channel, string message)
-        {
-            var dto = JsonUtility.FromJson<OrtcAnnouncement>(message);
-            
-            var lobbyu = LobbyUsers.FirstOrDefault(o => o.UserId == dto.cm);
-            if (lobbyu != null)
-            {
-                Debug.Log("LobbyUserRemoved - " + lobbyu.UserName);
-                LobbyUsers.Remove(lobbyu);
-                OnLobbyUserRemove(lobbyu);
-            }
-
-            var roomu = RoomUsers.FirstOrDefault(o => o.UserId == dto.cm);
-            if (roomu != null)
-            {
-                Debug.Log("RoomUserRemoved - " + roomu.UserName);
-                RoomUsers.Remove(roomu);
-                OnRoomUserRemove(roomu);
-                if (IsAuthority())
-                    OnRoomChanged();
-            }
-        }
-
-        void OnRoomMessage(string channel, string message)
-        {
-            var proxy = message.Split(new[] { Seperator }, StringSplitOptions.None);
-            var type = LobbyMessage.GetTypeFromKey(int.Parse(proxy[0]));
-            var mjson = proxy[1];
-
-            if (type == null)
-                return;
-
-            Debug.Log("LobbyService:OnRoomMessage " + type.Name);
-
-            if (type == typeof(UserDetails))
-            {
-                var dto = JsonUtility.FromJson<UserDetails>(mjson);
-                Debug.Log("RoomUserAdded - " + dto.UserName);
-                RoomUsers.RemoveAll(o => o.UserId == dto.UserId);
-                if (dto.UserId == User.UserId)
-                {
-                    RoomUsers.Add(User);
-                    OnRoomUserAdd(User);
-                }
-                else
-                {
-                    RoomUsers.Add(dto);
-                    OnRoomUserAdd(dto);
-
-                    if (IsAuthority())
-                        OnRoomChanged();
-                }
-            }
-            else if (type == typeof(UserFindRequest))
-            {
-                var dto = JsonUtility.FromJson<UserFindRequest>(mjson);
-                if (dto.UserId == User.UserId)
-                    return;
-                var model = LobbyMessage.GetDefault<UserFindResponse>();
-                model.User = User;
-                model.RoomId = dto.RoomId;
-                Debug.Log("SendingUserDetails - " + dto.RoomId);
-                SendRPC(dto.UserId, model);
-            }
-            else if (type == typeof(UserLeaveMessage))
-            {
-                var dto = JsonUtility.FromJson<UserLeaveMessage>(mjson);
-                var first = RoomUsers.FirstOrDefault(o => o.UserId == dto.UserId);
-                if (first != null)
-                {
-                    Debug.Log("RoomUserRemoved - " + first.UserName);
-                    RoomUsers.Remove(first);
-                    OnRoomUserRemove(first);
-
-                    if (IsAuthority())
-                        OnRoomChanged();
-                }
-            }
-            else if (type == typeof(RoomDetails))
-            {
-                Room = JsonUtility.FromJson<RoomDetails>(mjson);
-                Debug.Log("RoomUpdated - " + Room.RoomName);
-                OnRoomUpdate(Room);
-            }
-            else if (type == typeof(ChatMessage))
-            {
-                var dto = JsonUtility.FromJson<ChatMessage>(mjson);
-                Debug.Log("RoomChat - " + dto.Content);
-                OnRoomChat(dto);
-            }
-            else
-            {
-                Debug.Log("RoomRPC - " + type.Name);
-                //Custom
-                OnRoomyRpc(type, mjson);
-            }
-        }
-
-        void OnLobbyMessage(string channel, string message)
-        {
-            var proxy = message.Split(new[] { Seperator }, StringSplitOptions.None);
-            var type = LobbyMessage.GetTypeFromKey(int.Parse(proxy[0]));
-            var mjson = proxy[1];
-
-            if (type == null)
-                return;
-
-            Debug.Log("LobbyService:OnLobbyMessage " + type.Name);
-
-            if (type == typeof(UserDetails))
-            {
-                var dto = JsonUtility.FromJson<UserDetails>(mjson);
-                LobbyUsers.RemoveAll(o => o.UserId == dto.UserId);
-                Debug.Log("LobbyUserAdded - " + dto.UserName);
-                if (dto.UserId == User.UserId)
-                {
-                    LobbyUsers.Add(User);
-                    OnLobbyUserAdd(User);
-                }
-                else
-                {
-                    LobbyUsers.Add(dto);
-                    OnLobbyUserAdd(dto);
-                }
-            }
-            else if (type == typeof(UserLeaveMessage))
-            {
-                var dto = JsonUtility.FromJson<UserLeaveMessage>(mjson);
-                var first = LobbyUsers.FirstOrDefault(o => o.UserId == dto.UserId);
-                if (first != null)
-                {
-                    Debug.Log("LobbyUserRemoved - " + first.UserName);
-                    LobbyUsers.Remove(first);
-                    OnLobbyUserRemove(first);
-                    if (IsAuthority())
-                        OnRoomChanged();
-                }
-            }
-            else if (type == typeof(UserFindRequest))
-            {
-                var dto = JsonUtility.FromJson<UserFindRequest>(mjson);
-                if (dto.UserId == User.UserId)
-                    return;
-                var model = LobbyMessage.GetDefault<UserFindResponse>();
-                model.User = User;
-                model.RoomId = dto.RoomId;
-                Debug.Log("SendingUserDetails - " + dto.RoomId);
-                SendRPC(dto.UserId, model);
-            }
-            else if (type == typeof(RoomFindRequest))
-            {
-                if (InRoom)
-                {
-                    if (IsAuthority())
-                    {
-                        var dto = JsonUtility.FromJson<RoomFindRequest>(mjson);
-                        Debug.Log("SendingRoomDetails - " + Room.RoomName);
-
-                        var details = LobbyMessage.GetDefault<RoomFindResponse>();
-                        details.Room = Room;
-                        details.Users = RoomUsers.ToArray();
-
-                        SendRPC(dto.UserId, details);
-                    }
-                }
-            }
-
-            else if (type == typeof(RoomFindResponse))
-            {
-                var dto = JsonUtility.FromJson<RoomFindResponse>(mjson);
-                Debug.Log("RoomFound - " + dto.Room.RoomName + " " + dto.Users.Length);
-                OnRoomFound(dto);
-            }
-            else if (type == typeof(ChatMessage))
-            {
-                var dto = JsonUtility.FromJson<ChatMessage>(mjson);
-                Debug.Log("LobbyChat - " + dto.Content);
-                OnLobbyChat(dto);
-            }
-            else
-            {
-                Debug.Log("RoomRPC - " + type.Name);
-                //Custom
-                OnLobbyRpc(type, mjson);
-            }
-        }
-
-        void OnUserMessage(string channel, string message)
-        {
-            var proxy = message.Split(new[] { Seperator }, StringSplitOptions.None);
-            var type = LobbyMessage.GetTypeFromKey(int.Parse(proxy[0]));
-            var mjson = proxy[1];
-
-            if (type == null)
-                return;
-
-            Debug.Log("LobbyService:OnUserMessage " + type.Name);
-
-            if (type == typeof(UserFindResponse))
-            {
-                var dto = JsonUtility.FromJson<UserFindResponse>(mjson);
-                if (dto.RoomId == LOBBY)
-                {
-                    Debug.Log("LobbyUserAdded - " + dto.User.UserName);
-                    LobbyUsers.RemoveAll(o => o.UserId == dto.User.UserId);
-                    LobbyUsers.Add(dto.User);
-                    OnLobbyUserAdd(dto.User);
-                }
-                else if (Room != null && dto.RoomId == Room.RoomId)
-                {
-                    Debug.Log("RoomUserAdded - " + dto.User.UserId);
-                    RoomUsers.RemoveAll(o => o.UserId == dto.User.UserId);
-                    RoomUsers.Add(dto.User);
-                    OnRoomUserAdd(dto.User);
-                }
-            }
-            else if (type == typeof(RoomFindResponse))
-            {
-                var dto = JsonUtility.FromJson<RoomFindResponse>(mjson);
-                Debug.Log("RoomFound - " + dto.Room.RoomName + " " + dto.Users.Length);
-                OnRoomFound(dto);
-            }
-            else if (type == typeof(RoomFindResponse))
-            {
-                var dto = JsonUtility.FromJson<RoomFindResponse>(mjson);
-                Debug.Log("RoomFound - " + dto.Room.RoomName + " " + dto.Users.Length);
-                OnRoomFound(dto);
-            }
-            else if (type == typeof(ChatMessage))
-            {
-                var dto = JsonUtility.FromJson<ChatMessage>(mjson);
-                Debug.Log("UserChat - " + dto.Content);
-                OnUserChat(dto);
-            }
-            else
-            {
-                Debug.Log("UserRPC - " + type.Name);
-                //Custom
-                OnUserRpc(type, mjson);
-            }
-        }
-
-        private void _client_OnReconnecting()
+        void _client_OnReconnecting()
         {
             State = ConnectionState.Reconnecting;
             OnState(State);
         }
 
-        private void _client_OnReconnected()
+        void _client_OnReconnected()
         {
             if (InLobby)
             {
@@ -976,7 +749,7 @@ namespace Assets.Realtime.Lobby
                 OnLobbyEnter();
 
                 SendRPC(LOBBY, User);
-                
+
                 Debug.Log("LobbyService EnterLobby");
             }
 
@@ -988,7 +761,7 @@ namespace Assets.Realtime.Lobby
                 InRoom = true;
                 OnRoomEnter(Room);
                 SendRPC(Room.RoomId, User);
-                
+
                 //Update Room State
                 var dto = LobbyMessage.GetDefault<RoomFindResponse>();
                 dto.Room = Room;
@@ -1003,34 +776,231 @@ namespace Assets.Realtime.Lobby
             OnState(State);
         }
 
-        private void _client_OnDisconnected()
+        void _client_OnDisconnected()
         {
             State = ConnectionState.Disconnected;
             OnState(State);
-        }
-
-        private void _client_OnConnected()
-        {
-            _client.Subscribe(OrtcDisconnected, true, OnOrtcDisconnectedMessage);
-            _client.Subscribe(User.UserId, true, OnUserMessage);
-        }
-
-        private void _client_OnException(Exception ex)
-        {
-            Debug.LogException(ex);
 
             if (connectCallback != null)
                 connectCallback(ConnectionState.Disconnected);
 
-            if (lobbyJoinCallback != null)
-                lobbyJoinCallback(false);
+            connectCallback = null;
+
+        }
+
+        void _client_OnConnected()
+        {
+            _client.Subscribe(OrtcDisconnected, true, OnOrtcMessage);
+            _client.Subscribe(User.UserId, true, OnOrtcMessage);
+        }
+
+        void _client_OnException(Exception ex)
+        {
+            Debug.LogException(ex);
+
 
             if (roomJoinCallback != null)
                 roomJoinCallback(false);
 
+            if (lobbyJoinCallback != null)
+                lobbyJoinCallback(false);
+
             connectCallback = null;
             roomJoinCallback = null;
             lobbyJoinCallback = null;
+        }
+
+        void OnOrtcMessage(string channel, string message)
+        {
+            var proxy = message.Split(new[] { Seperator }, StringSplitOptions.None);
+            var type = LobbyMessage.GetTypeFromKey(int.Parse(proxy[0]));
+            var mjson = proxy[1];
+
+            if (type == null)
+                return;
+
+            Debug.Log("LobbyService:OnRoomMessage " + type.Name);
+
+            var model = JsonUtility.FromJson(mjson, type);
+
+            //Send via messenger. Routed below
+            LobbyMessenger.Publish(channel, model, type);
+        }
+
+        #endregion
+
+        #region Message Routes
+
+        void MapRoutes()
+        {
+            LobbyMessenger<OrtcAnnouncement>.Subscribe(OnOrtcAnnouncement);
+            LobbyMessenger<UserDetails>.Subscribe(OnUserDetails);
+            LobbyMessenger<UserLeaveMessage>.Subscribe(OnUserLeaveMessage);
+            LobbyMessenger<UserFindRequest>.Subscribe(OnUserFindRequest);
+            LobbyMessenger<UserFindResponse>.Subscribe(UserFindResponse);
+            LobbyMessenger<RoomDetails>.Subscribe(OnRoomDetails);
+            LobbyMessenger<RoomFindRequest>.Subscribe(OnRoomFindRequest);
+            LobbyMessenger<RoomFindResponse>.Subscribe(OnFindRoomResponse);
+        }
+
+        void OnOrtcAnnouncement(string channel, OrtcAnnouncement message)
+        {
+            if (channel != OrtcDisconnected)
+                return;
+
+            //Remove user from rooms
+            var lobbyu = LobbyUsers.FirstOrDefault(o => o.UserId == message.cm);
+            if (lobbyu != null)
+            {
+                Debug.Log("LobbyUserRemoved - " + lobbyu.UserName);
+                LobbyUsers.Remove(lobbyu);
+                OnLobbyUserRemove(lobbyu);
+            }
+
+            var roomu = RoomUsers.FirstOrDefault(o => o.UserId == message.cm);
+            if (roomu != null)
+            {
+                Debug.Log("RoomUserRemoved - " + roomu.UserName);
+                RoomUsers.Remove(roomu);
+                OnRoomUserRemove(roomu);
+                if (IsAuthority())
+                    OnRoomChanged();
+            }
+        }
+
+        // Users
+
+        void OnUserDetails(string channel, UserDetails model)
+        {
+            if (channel == LOBBY)
+            {
+                LobbyUsers.RemoveAll(o => o.UserId == model.UserId);
+                Debug.Log("LobbyUserAdded - " + model.UserName);
+                if (model.UserId == User.UserId)
+                {
+                    LobbyUsers.Add(User);
+                    OnLobbyUserAdd(User);
+                }
+                else
+                {
+                    LobbyUsers.Add(model);
+                    OnLobbyUserAdd(model);
+                }
+
+            }
+            else
+            {
+                Debug.Log("RoomUserAdded - " + model.UserName);
+                RoomUsers.RemoveAll(o => o.UserId == model.UserId);
+                if (model.UserId == User.UserId)
+                {
+                    RoomUsers.Add(User);
+                    OnRoomUserAdd(User);
+                }
+                else
+                {
+                    RoomUsers.Add(model);
+                    OnRoomUserAdd(model);
+
+                    if (IsAuthority())
+                        OnRoomChanged();
+                }
+            }
+        }
+
+        void OnUserLeaveMessage(string channel, UserLeaveMessage model)
+        {
+            if (channel == LOBBY)
+            {
+                var first = LobbyUsers.FirstOrDefault(o => o.UserId == model.UserId);
+                if (first != null)
+                {
+                    Debug.Log("LobbyUserRemoved - " + first.UserName);
+                    LobbyUsers.Remove(first);
+                    OnLobbyUserRemove(first);
+                    if (IsAuthority())
+                        OnRoomChanged();
+                }
+
+            }
+            else
+            {
+                var first = RoomUsers.FirstOrDefault(o => o.UserId == model.UserId);
+                if (first != null)
+                {
+                    Debug.Log("RoomUserRemoved - " + first.UserName);
+                    RoomUsers.Remove(first);
+                    OnRoomUserRemove(first);
+
+                    if (IsAuthority())
+                        OnRoomChanged();
+                }
+            }
+        }
+
+        void OnUserFindRequest(string channel, UserFindRequest model)
+        {
+
+            if (model.UserId == User.UserId)
+                return;
+
+            // Send response
+            var dto = LobbyMessage.GetDefault<UserFindResponse>();
+            dto.User = User;
+            dto.RoomId = model.RoomId;
+            SendRPC(dto.RoomId, dto);
+        }
+
+        void UserFindResponse(string channel, UserFindResponse model)
+        {
+            if (model.RoomId == LOBBY)
+            {
+                Debug.Log("LobbyUserAdded - " + model.User.UserName);
+                LobbyUsers.RemoveAll(o => o.UserId == model.User.UserId);
+                LobbyUsers.Add(model.User);
+                OnLobbyUserAdd(model.User);
+            }
+            else if (Room != null && model.RoomId == Room.RoomId)
+            {
+                Debug.Log("RoomUserAdded - " + model.User.UserId);
+                RoomUsers.RemoveAll(o => o.UserId == model.User.UserId);
+                RoomUsers.Add(model.User);
+                OnRoomUserAdd(model.User);
+            }
+        }
+
+        // Rooms
+
+        void OnRoomDetails(string channel, RoomDetails model)
+        {
+            //From Room Channel
+            Debug.Log("RoomUpdated - " + model.RoomName);
+            Room = model;
+            OnRoomUpdate(model);
+        }
+
+        void OnRoomFindRequest(string channel, RoomFindRequest model)
+        {
+            if (InRoom)
+            {
+                //send is authority
+                if (IsAuthority())
+                {
+                    Debug.Log("SendingRoomDetails - " + Room.RoomName);
+
+                    var details = LobbyMessage.GetDefault<RoomFindResponse>();
+                    details.Room = Room;
+                    details.Users = RoomUsers.ToArray();
+
+                    SendRPC(model.UserId, details);
+                }
+            }
+        }
+
+        void OnFindRoomResponse(string channel, RoomFindResponse model)
+        {
+            Debug.Log("RoomFound - " + model.Room.RoomName + " " + model.Users.Length);
+            OnRoomFound(model);
         }
 
         #endregion

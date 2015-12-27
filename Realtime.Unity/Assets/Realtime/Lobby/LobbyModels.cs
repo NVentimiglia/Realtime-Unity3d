@@ -9,7 +9,7 @@ using Windows.ApplicationModel;
 using Windows.Storage;
 #endif
 
-namespace Assets.Realtime.Lobby
+namespace Realtime.Lobby
 {
     /// <summary>
     /// A user in the lobby system
