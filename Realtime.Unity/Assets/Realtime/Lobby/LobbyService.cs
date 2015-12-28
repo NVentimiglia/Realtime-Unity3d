@@ -168,6 +168,10 @@ namespace Realtime.Lobby
         /// <returns></returns>
         public static LobbyService Init(IOrtcClient client, string appKey, string privateKey, string url, bool isCluster)
         {
+            //TODO Unity 5.2 and below, add your json serializer here
+            _toJson = JsonUtility.ToJson;
+            _fromJson = JsonUtility.FromJson;
+
             Instance = new LobbyService(client, appKey, privateKey, url, isCluster);
             return Instance;
         }
@@ -593,6 +597,9 @@ namespace Realtime.Lobby
         Action<ConnectionState> connectCallback;
         RoomDetails _pendingRoom;
 
+        static Func<string, Type, object> _fromJson;
+        static Func<object, string> _toJson;
+
         LobbyService(IOrtcClient client, string appKey, string privateKey, string url, bool isCluster)
         {
             AppKey = appKey;
@@ -629,7 +636,7 @@ namespace Realtime.Lobby
         {
             if (InRoom)
             {
-                var auth  = RoomUsers.Where(o => o.JoinedRoom > 0).OrderBy(o => o.JoinedRoom).FirstOrDefault();
+                var auth = RoomUsers.Where(o => o.JoinedRoom > 0).OrderBy(o => o.JoinedRoom).FirstOrDefault();
 
                 if (auth != null)
                 {
@@ -644,6 +651,21 @@ namespace Realtime.Lobby
             {
                 RoomAuthority = null;
             }
+        }
+
+        string ToJson(object o)
+        {
+            return _toJson(o);
+        }
+
+        object FromJson(string json, Type t)
+        {
+            return _fromJson(json, t);
+        }
+
+        T FromJson<T>(string json) where T : class 
+        {
+            return _fromJson(json, typeof(T)) as T;
         }
 
         void EnablePresence(string channel)
@@ -664,14 +686,14 @@ namespace Realtime.Lobby
 
         void SendRPC(string channel, LobbyMessage message)
         {
-            var json = JsonUtility.ToJson(message);
+            var json = ToJson(message);
             var key = LobbyMessage.GetTypeKey(message.GetType());
 
             Debug.Log("LobbyService:SendRPC " + message.GetType().Name);
 
             _client.Send(channel, string.Format("{0}{1}{2}", key, Seperator, json));
         }
-        
+
         void _client_OnUnsubscribed(string channel)
         {
             if (channel == LOBBY)
@@ -853,7 +875,7 @@ namespace Realtime.Lobby
         {
             if (channel == OrtcDisconnected)
             {
-                var model = JsonUtility.FromJson<OrtcAnnouncement>(message);
+                var model = FromJson<OrtcAnnouncement>(message);
 
                 //Send via messenger. Routed below
                 LobbyMessenger.Publish(channel, model, typeof(OrtcAnnouncement));
@@ -869,7 +891,7 @@ namespace Realtime.Lobby
 
                 Debug.Log("LobbyService:OnRoomMessage " + type.Name);
 
-                var model = JsonUtility.FromJson(mjson, type);
+                var model = FromJson(mjson, type);
 
                 //Send via messenger. Routed below
                 LobbyMessenger.Publish(channel, model, type);

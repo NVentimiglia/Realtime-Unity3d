@@ -113,7 +113,7 @@ namespace Realtime.Demos
 
         void Awake()
         {
-            RealtimeProxy.ConfirmInit();
+            UnityOrtcStartup.ConfigureOrtc();
         }
 
         protected void Start()

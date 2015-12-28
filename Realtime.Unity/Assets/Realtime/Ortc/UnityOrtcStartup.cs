@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Realtime.Ortc.Api;
+using UnityEngine;
 
 namespace Realtime.Ortc
 {
@@ -9,13 +10,17 @@ namespace Realtime.Ortc
     {
         static bool isConfigured;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+#if UNITY_5
+        [RuntimeInitializeOnLoadMethod]
+#endif
         internal static void ConfigureOrtc()
         {
             if (isConfigured)
                 return;
 
             isConfigured = true;
+
+            RealtimeProxy.ConfirmInit();
 
             //Configure custom clients here.
             OrtcFactory.Init(() =>
