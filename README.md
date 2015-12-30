@@ -37,6 +37,7 @@ You'll pay as you go. We'll just charge you for what you use. From prototype to 
 
 [**Other Platforms**](http://framework.realtime.co)
 
+[**Network Status**](http://status.realtime.co/)
 
 
 
