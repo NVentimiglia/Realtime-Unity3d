@@ -4,117 +4,19 @@
 //  Product		: Unity3d Foundation
 //  Published		: 2015
 //  -------------------------------------
-using System;
-using Foundation.Terminal.Internal;
+
+using Foundation.Databinding;
 using UnityEngine;
 
-namespace Foundation.Terminal
+namespace Foundation.Debuging
 {
-    #region sub objects
-
     /// <summary>
-    /// Message Formatting
+    /// The Terminal API
     /// </summary>
-    public enum TerminalType
-    {
-        Log,
-        Warning,
-        Error,
-        Exception,
-        Success,
-        Important,
-        Input,
-    }
-
-    /// <summary>
-    /// A Terminal line item
-    /// </summary>
-    public struct TerminalItem
-    {
-        readonly string _text;
-        public string Text
-        {
-            get { return _text; }
-        }
-
-        readonly string _formatted;
-        public string Formatted
-        {
-            get { return _formatted; }
-        }
-
-        readonly TerminalType _type;
-        public TerminalType Type
-        {
-            get { return _type; }
-        }
-
-        readonly Color _color;
-        public Color Color
-        {
-            get { return _color; }
-        }
-
-        public TerminalItem(TerminalType type, string text)
-        {
-            _text = text;
-            _type = type;
-            switch (_type)
-            {
-                case TerminalType.Warning:
-                    _formatted = string.Format("<< {0}", text);
-                    _color = TerminalModel.Instance.WarningColor;
-                    break;
-                case TerminalType.Error:
-                    _formatted = string.Format("<< {0}", text);
-                    _color = TerminalModel.Instance.ErrorColor;
-                    break;
-                case TerminalType.Success:
-                    _formatted = string.Format("<< {0}", text);
-                    _color = TerminalModel.Instance.SuccessColor;
-                    break;
-                case TerminalType.Important:
-                    _formatted = string.Format("<< {0}", text);
-                    _color = TerminalModel.Instance.ImportantColor;
-                    break;
-                case TerminalType.Input:
-                    _formatted = string.Format(">> {0}", text);
-                    _color = TerminalModel.Instance.InputColor;
-                    break;
-                default:
-                    _formatted = text;
-                    _color = TerminalModel.Instance.LogColor;
-                    break;
-            }
-        }
-    }
-
-    /// <summary>
-    /// For processing Text input
-    /// </summary>
-    public class TerminalInterpreter
-    {
-        public string Label;
-        public Action<string> Method;
-    }
-
-    /// <summary>
-    /// Button to add to the menu
-    /// </summary>
-    public class TerminalCommand
-    {
-        public string Label;
-        public Action Method;
-    }
-    #endregion
-
-    /// <summary>
-    /// The Terminal Model.
-    /// </summary>
-    public class TerminalModel
+    public class Terminal
     {
         #region static
-        public static readonly TerminalModel Instance = new TerminalModel();
+        public static readonly Terminal Instance = new Terminal();
         #endregion
 
         #region props / fields

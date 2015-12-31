@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Foundation.Terminal.Internal
+namespace Foundation.Databinding
 {
     /// <summary>
     /// A List with on change delegates

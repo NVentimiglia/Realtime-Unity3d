@@ -6,7 +6,7 @@
 //  -------------------------------------
 using System;
 using System.Linq;
-using Foundation.Terminal;
+using Foundation.Debuging;
 using Realtime.Lobby;
 using Realtime.Ortc;
 using Realtime.Ortc.Api;
@@ -62,7 +62,7 @@ namespace Realtime.Demos
         private void _lobby_OnState(LobbyService.ConnectionState obj)
         {
             if (obj != LobbyService.ConnectionState.Connected)
-                TerminalModel.LogImportant(obj);
+                Terminal.LogImportant(obj);
         }
 
         private void _lobby_OnRoomFound(RoomFindResponse obj)
@@ -82,13 +82,13 @@ namespace Realtime.Demos
 
         void LoadCommands()
         {
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Connect",
                 Method = Connect
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Disconnect",
                 Method = Disconnect
@@ -96,73 +96,73 @@ namespace Realtime.Demos
 
             //
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Join Lobby",
                 Method = SubscribeLobby
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Leave Lobby",
                 Method = UnsubscribeLobby
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Print Lobby",
                 Method = PrintLobby
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Find Rooms",
                 Method = FindRooms
             });
 
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Join Room",
                 Method = Subscribe
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Create Room",
                 Method = CreateRoom
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Leave Room",
                 Method = Unsubscribe
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Print Room",
                 Method = PrintRoom
             });
             //
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Lobby Chat",
                 Method = ChatLobby
             });
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Room Chat",
                 Method = ChatRoom
             });
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "User Chat",
                 Method = ChatUser
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Custom RPC",
                 Method = DoRPC
@@ -182,7 +182,7 @@ namespace Realtime.Demos
 
             _lobby.Connect("AuthKey", user, state =>
             {
-                TerminalModel.LogImportant("Connected !");
+                Terminal.LogImportant("Connected !");
             });
         }
 
@@ -195,7 +195,7 @@ namespace Realtime.Demos
         {
             _lobby.JoinLobby(result =>
             {
-                TerminalModel.LogImportant(result ? "In Lobby !" : "Error");
+                Terminal.LogImportant(result ? "In Lobby !" : "Error");
             });
         }
 
@@ -206,8 +206,8 @@ namespace Realtime.Demos
 
         void PrintLobby()
         {
-            TerminalModel.Log("");
-            TerminalModel.LogImportant("Lobby Users :");
+            Terminal.Log("");
+            Terminal.LogImportant("Lobby Users :");
             foreach (var user in _lobby.LobbyUsers)
             {
                 if (user.Equals(_lobby.User))
@@ -225,8 +225,8 @@ namespace Realtime.Demos
         {
             if (_lobby.InRoom)
             {
-                TerminalModel.Log("");
-                TerminalModel.LogImportant("Room Users : " + _lobby.Room.RoomName);
+                Terminal.Log("");
+                Terminal.LogImportant("Room Users : " + _lobby.Room.RoomName);
                 foreach (var user in _lobby.RoomUsers)
                 {
                     if (_lobby.IsAuthority(user))
@@ -270,7 +270,7 @@ namespace Realtime.Demos
             }
             _lobby.JoinRoom(_lastRoom, result =>
             {
-                TerminalModel.LogImportant(result ? "In Room !" : "Error");
+                Terminal.LogImportant(result ? "In Room !" : "Error");
             });
         }
 
@@ -278,7 +278,7 @@ namespace Realtime.Demos
         {
             _lobby.CreateRoom(_lobby.User.UserName, SceneManager.GetActiveScene().name, true, result =>
             {
-                TerminalModel.LogImportant(result ? "Room Created !" : "Error");
+                Terminal.LogImportant(result ? "Room Created !" : "Error");
             });
         }
 

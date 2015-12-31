@@ -7,7 +7,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Foundation.Terminal.Internal
+namespace Foundation.Debuging.Internal
 {
     /// <summary>
     /// Presentation script for a Terminal Text Item
@@ -18,7 +18,5 @@ namespace Foundation.Terminal.Internal
         public TerminalItem Model { get; set; }
 
         public Text Label;
-
-        public LayoutElement Layout;
     }
 }

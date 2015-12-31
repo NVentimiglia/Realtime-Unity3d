@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Realtime.Ortc;
@@ -192,7 +190,7 @@ namespace Realtime.Lobby
             }
 
             AuthKey = authToken;
-            User = self;
+            RoomAuthority = User = self;
             connectCallback = callback;
 
             _client.ConnectionMetadata = User.UserId;
@@ -232,7 +230,6 @@ namespace Realtime.Lobby
 
             State = ConnectionState.Disconnecting;
             OnState(State);
-            User = null;
             InRoom = false;
             InLobby = false;
             Room = null;
@@ -277,6 +274,11 @@ namespace Realtime.Lobby
             if (State != ConnectionState.Connected)
             {
                 Debug.LogError("Invalid connection state");
+                return;
+            }
+            if (InLobby)
+            {
+                callback(true);
                 return;
             }
             lobbyJoinCallback = callback;
@@ -368,8 +370,7 @@ namespace Realtime.Lobby
 
             if (InRoom)
             {
-                Debug.LogError("Already in a room !");
-                return;
+                LeaveRoom();
             }
             _pendingRoom = new RoomDetails
             {
@@ -438,7 +439,7 @@ namespace Realtime.Lobby
 
             InRoom = false;
             RoomUsers.Clear();
-            RoomAuthority = null;
+            SetAuthority();
         }
 
         /// <summary>
@@ -638,6 +639,7 @@ namespace Realtime.Lobby
 
             MapRoutes();
 
+            RoomAuthority = User = new UserDetails();
             LobbyUsers = new List<UserDetails>();
             RoomUsers = new List<UserDetails>();
         }
@@ -659,7 +661,7 @@ namespace Realtime.Lobby
             }
             else
             {
-                RoomAuthority = null;
+                RoomAuthority = User;
             }
         }
 
@@ -753,13 +755,7 @@ namespace Realtime.Lobby
 
             Debug.Log("LobbyService:SendRPC " + message.GetType().Name);
 
-            SendInternal(channel, string.Format("{0}{1}{2}", key, Seperator, Compress(json)));
-        }
-
-        void SendInternal(string ch, string m)
-        {
-
-
+            _client.Send(channel, string.Format("{0}{1}{2}", key, Seperator, Compress(json)));
         }
 
         void _client_OnUnsubscribed(string channel)

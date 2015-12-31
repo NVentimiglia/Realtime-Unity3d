@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace Foundation.Terminal.Internal
+namespace Foundation.Debuging.Internal
 {
     /// <summary>
     /// Test script
@@ -18,7 +18,7 @@ namespace Foundation.Terminal.Internal
     {
         protected void Awake()
         {
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Spam",
                 Method = () => StartCoroutine(DoSpam())
@@ -31,7 +31,7 @@ namespace Foundation.Terminal.Internal
             {
                 yield return new WaitForSeconds(.1f);
 
-                TerminalModel.Log(DateTime.UtcNow);
+                Terminal.Log(DateTime.UtcNow.ToLongTimeString());
             }
         }
     }

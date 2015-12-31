@@ -34,6 +34,10 @@ namespace Realtime.Lobby
             get { return LobbyService.Instance.InRoom && LobbyService.Instance.RoomAuthority.Equals(this); }
         }
 
+        public bool IsSelf
+        {
+            get { return UserId == LobbyService.Instance.User.UserId; }
+        }
         public bool Equals(UserDetails other)
         {
             return other != null && UserId == other.UserId;

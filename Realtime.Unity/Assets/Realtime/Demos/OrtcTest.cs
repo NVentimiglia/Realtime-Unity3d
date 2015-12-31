@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Foundation.Terminal;
+using Foundation.Debuging;
 using Realtime.Ortc;
 using Realtime.Ortc.Api;
 using UnityEngine;
@@ -128,7 +128,7 @@ namespace Realtime.Demos
             {
                 ClientMetaData = text.Replace(".", "");
                 _ortc.ConnectionMetadata = ClientMetaData;
-                TerminalModel.LogImportant("Name set to " + ClientMetaData);
+                Terminal.LogImportant("Name set to " + ClientMetaData);
             }
             else
             {
@@ -151,24 +151,24 @@ namespace Realtime.Demos
 
         void LoadCommands()
         {
-            TerminalModel.Add(new TerminalInterpreter
+            Terminal.Add(new TerminalInterpreter
             {
                 Label = "Chat",
                 Method = ReadText
             });
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Connect",
                 Method = () => StartCoroutine(Connect())
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "ConnectSSL",
                 Method = () => StartCoroutine(ConnectSSL())
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Disconnect",
                 Method = Disconnect
@@ -176,37 +176,37 @@ namespace Realtime.Demos
 
             //
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Subscribe",
                 Method = Subscribe
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Unsubscribe",
                 Method = Unsubscribe
             });
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Send",
                 Method = Send
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Subscribe SubChannels",
                 Method = SubscribeeSubs
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Unsubscribe SubChannels",
                 Method = UnsubscribeSubs
             });
 
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Auth",
                 Method = () => StartCoroutine(Auth())
@@ -214,20 +214,20 @@ namespace Realtime.Demos
 
             //
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "EnablePresence",
                 Method = () => StartCoroutine(EnablePresence())
             });
 
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "DisablePresense",
                 Method = () => StartCoroutine(DisablePresence())
             });
 
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Presence",
                 Method = () => StartCoroutine(RequestPresence())
@@ -257,7 +257,7 @@ namespace Realtime.Demos
                     _ortc.OnSubscribed += ortc_OnSubscribed;
                     _ortc.OnUnsubscribed += ortc_OnUnsubscribed;
                     _ortc.OnException += ortc_OnException;
-                    TerminalModel.LogInput("Ortc Ready");
+                    Terminal.LogInput("Ortc Ready");
                 }
             }
             catch (Exception ex)
@@ -269,7 +269,7 @@ namespace Realtime.Demos
             if (_ortc == null)
             {
 
-                TerminalModel.LogError("ORTC object is null");
+                Terminal.LogError("ORTC object is null");
             }
         }
 
@@ -279,7 +279,7 @@ namespace Realtime.Demos
             var dt = DateTime.Now;
             const string datePatt = @"HH:mm:ss";
 
-            TerminalModel.Log(String.Format("{0}: {1}", dt.ToString(datePatt), text));
+            Terminal.Log(String.Format("{0}: {1}", dt.ToString(datePatt), text));
         }
 
         IEnumerator Auth()
@@ -299,7 +299,7 @@ namespace Realtime.Demos
                 AuthTTL, PrivateKey, perms, (exception, s) =>
                 {
                     if (exception)
-                        TerminalModel.LogError("Unable to post permissions");
+                        Terminal.LogError("Unable to post permissions");
                     else
                         Log("Permissions posted");
                 });
@@ -403,7 +403,7 @@ namespace Realtime.Demos
                 {
                     if (exception)
                     {
-                        TerminalModel.LogError(String.Format("Error: {0}", exception.Message));
+                        Terminal.LogError(String.Format("Error: {0}", exception.Message));
                     }
                     else
                     {
@@ -430,7 +430,7 @@ namespace Realtime.Demos
                 {
 
                     if (exception)
-                        TerminalModel.LogError(String.Format("Error: {0}", exception.Message));
+                        Terminal.LogError(String.Format("Error: {0}", exception.Message));
                     else
                         Log(s);
                 });
@@ -444,7 +444,7 @@ namespace Realtime.Demos
                 (exception, s) =>
                 {
                     if (exception)
-                        TerminalModel.LogError(String.Format("Error: {0}", exception.Message));
+                        Terminal.LogError(String.Format("Error: {0}", exception.Message));
                     else
                         Log(s);
                 } );

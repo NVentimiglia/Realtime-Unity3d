@@ -85,7 +85,8 @@
     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\TerminalCommandView.cs" />
     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\TerminalItemView.cs" />
     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\TerminalView.cs" />
-    <Compile Include="Assets\Realtime\Demos\_Terminal\TerminalModel.cs" />
+    <Compile Include="Assets\Realtime\Demos\_Terminal\Terminal.cs" />
+    <Compile Include="Assets\Realtime\Demos\_Terminal\TerminalModels.cs" />
     <Compile Include="Assets\Realtime\Lobby\LobbyMessenger.cs" />
     <Compile Include="Assets\Realtime\Lobby\LobbyModels.cs" />
     <Compile Include="Assets\Realtime\Lobby\LobbyService.cs" />
@@ -104,7 +105,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\README.txt" />
-    <None Include="Assets\Realtime\Demos\_Terminal\Terminal.txt" />
     <None Include="Assets\Realtime\README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />

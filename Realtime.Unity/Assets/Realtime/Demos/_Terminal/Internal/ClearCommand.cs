@@ -6,7 +6,7 @@
 //  -------------------------------------
 using UnityEngine;
 
-namespace Foundation.Terminal.Internal
+namespace Foundation.Debuging.Internal
 {
     /// <summary>
     /// Extends the console with a 'clear' command
@@ -16,10 +16,10 @@ namespace Foundation.Terminal.Internal
     {
         protected void Awake()
         {
-            TerminalModel.Add(new TerminalCommand
+            Terminal.Add(new TerminalCommand
             {
                 Label = "Clear",
-                Method = () => TerminalModel.Clear()
+                Method = () => Terminal.Clear()
             });
         }
     }

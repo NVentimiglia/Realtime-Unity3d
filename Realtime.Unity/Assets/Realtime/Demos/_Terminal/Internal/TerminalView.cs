@@ -11,7 +11,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Foundation.Terminal.Internal
+namespace Foundation.Debuging.Internal
 {
     /// <summary>
     /// renders the Terminal using new 4.6 uGUI
@@ -88,33 +88,33 @@ namespace Foundation.Terminal.Internal
         protected void Awake()
         {
             // Display
-            TerminalModel.Instance.LogColor = LogColor;
-            TerminalModel.Instance.WarningColor = WarningColor;
-            TerminalModel.Instance.ErrorColor = ErrorColor;
-            TerminalModel.Instance.SuccessColor = SuccessColor;
-            TerminalModel.Instance.InputColor = InputColor;
-            TerminalModel.Instance.ImportantColor = ImportantColor;
+            Terminal.Instance.LogColor = LogColor;
+            Terminal.Instance.WarningColor = WarningColor;
+            Terminal.Instance.ErrorColor = ErrorColor;
+            Terminal.Instance.SuccessColor = SuccessColor;
+            Terminal.Instance.InputColor = InputColor;
+            Terminal.Instance.ImportantColor = ImportantColor;
 
             //Hide prototypes
             CommandPrototype.gameObject.SetActive(false);
             ItemPrototype.gameObject.SetActive(false);
 
             //wire
-            TerminalModel.Instance.Items.OnAdd += Items_OnAdd;
-            TerminalModel.Instance.Items.OnClear += Items_OnClear;
-            TerminalModel.Instance.Items.OnRemove += Items_OnRemove;
+            Terminal.Instance.Items.OnAdd += Items_OnAdd;
+            Terminal.Instance.Items.OnClear += Items_OnClear;
+            Terminal.Instance.Items.OnRemove += Items_OnRemove;
 
-            TerminalModel.Instance.Commands.OnAdd += Commands_OnAdd;
-            TerminalModel.Instance.Commands.OnClear += Commands_OnClear;
-            TerminalModel.Instance.Commands.OnRemove += Commands_OnRemove;
+            Terminal.Instance.Commands.OnAdd += Commands_OnAdd;
+            Terminal.Instance.Commands.OnClear += Commands_OnClear;
+            Terminal.Instance.Commands.OnRemove += Commands_OnRemove;
 
             //add items preadded
-            foreach (var item in TerminalModel.Instance.Items)
+            foreach (var item in Terminal.Instance.Items)
             {
                 Items_OnAdd(item);
             }
 
-            foreach (var item in TerminalModel.Instance.Commands)
+            foreach (var item in Terminal.Instance.Commands)
             {
                 Commands_OnAdd(item);
             }
@@ -122,7 +122,14 @@ namespace Foundation.Terminal.Internal
             Application.logMessageReceived += HandlerLog;
 
             if (DoDontDestoryOnLoad)
-                DontDestroyOnLoad(gameObject.transform.parent);
+            {
+                var t = transform;
+                while (t.parent != null)
+                {
+                    t = transform.parent;
+                }
+                DontDestroyOnLoad(t);
+            }
 
             Debug.Log("Console Ready");
         }
@@ -131,13 +138,13 @@ namespace Foundation.Terminal.Internal
         protected void OnDestroy()
         {
             //remove handlers
-            TerminalModel.Instance.Items.OnAdd -= Items_OnAdd;
-            TerminalModel.Instance.Items.OnClear -= Items_OnClear;
-            TerminalModel.Instance.Items.OnRemove -= Items_OnRemove;
+            Terminal.Instance.Items.OnAdd -= Items_OnAdd;
+            Terminal.Instance.Items.OnClear -= Items_OnClear;
+            Terminal.Instance.Items.OnRemove -= Items_OnRemove;
 
-            TerminalModel.Instance.Commands.OnAdd -= Commands_OnAdd;
-            TerminalModel.Instance.Commands.OnClear -= Commands_OnClear;
-            TerminalModel.Instance.Commands.OnRemove -= Commands_OnRemove;
+            Terminal.Instance.Commands.OnAdd -= Commands_OnAdd;
+            Terminal.Instance.Commands.OnClear -= Commands_OnClear;
+            Terminal.Instance.Commands.OnRemove -= Commands_OnRemove;
 
             Application.logMessageReceived -= HandlerLog;
         }
@@ -148,14 +155,14 @@ namespace Foundation.Terminal.Internal
             {
                 case LogType.Error:
                 case LogType.Exception:
-                    TerminalModel.LogError(condition);
+                    Terminal.LogError(condition);
                     break;
                 case LogType.Warning:
-                    TerminalModel.LogWarning(condition);
+                    Terminal.LogWarning(condition);
                     break;
                 case LogType.Log:
                 case LogType.Assert:
-                    TerminalModel.Log(condition);
+                    Terminal.Log(condition);
                     break;
             }
         }
@@ -224,15 +231,11 @@ namespace Foundation.Terminal.Internal
         IEnumerator AddItemAsync(TerminalItem obj)
         {
 
-            yield return 1;
-            yield return new WaitForEndOfFrame();
-
             //inst
             var instance = Instantiate(ItemPrototype.gameObject);
             var script = instance.GetComponent<TerminalItemView>();
             script.Label.text = obj.Text;
             script.Label.color = obj.Color;
-            script.Layout.preferredHeight = script.Label.preferredHeight;
             script.Model = obj;
 
             //parent
@@ -266,14 +269,14 @@ namespace Foundation.Terminal.Internal
             if (string.IsNullOrEmpty(text))
                 return;
 
-            TerminalModel.Submit(text);
+            Terminal.Submit(text);
 
             TextInput.text = string.Empty;
         }
 
         public void DoClear()
         {
-            TerminalModel.Clear();
+            Terminal.Clear();
         }
     }
 }

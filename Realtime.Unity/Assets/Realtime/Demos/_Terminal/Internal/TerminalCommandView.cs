@@ -8,12 +8,11 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Foundation.Terminal.Internal
+namespace Foundation.Debuging.Internal
 {
     /// <summary>
     /// Presentation script for a Terminal Button Item
     /// </summary>
-    [AddComponentMenu("Foundation/Terminal/TerminalCommandView")]
     public class TerminalCommandView : MonoBehaviour
     {
         public TerminalCommand Model { get; set; }
