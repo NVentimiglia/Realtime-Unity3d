@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using Realtime.Ortc;
 using Realtime.Ortc.Api;
 using UnityEngine;
@@ -19,7 +22,7 @@ namespace Realtime.Lobby
         protected const string OrtcConnected = "ortcClientConnected";
         protected const string OrtcSubscribed = "ortcClientSubscribed";
         protected const string OrtcUnsubscribed = "ortcClientUnsubscribed";
-        protected const string Seperator = "-ortc-";
+        protected const string Seperator = ";;";
 
         /// <summary>
         /// Internal announcment scheme
@@ -590,7 +593,6 @@ namespace Realtime.Lobby
 
         #region internal
 
-
         IOrtcClient _client;
 
         public string AuthKey { get; set; }
@@ -671,6 +673,58 @@ namespace Realtime.Lobby
             return _fromJson(json, t);
         }
 
+        /// <summary>
+        /// RTO BASE 64
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        static string Compress(string text)
+        {
+            var buffer = Encoding.UTF8.GetBytes(text);
+            return Convert.ToBase64String(buffer);
+            //var ms = new MemoryStream();
+            //using (var zip = new GZipStream(ms, CompressionMode.Compress, true))
+            //{
+            //    zip.Write(buffer, 0, buffer.Length);
+            //}
+
+            //ms.Position = 0;
+
+            //var compressed = new byte[ms.Length];
+            //ms.Read(compressed, 0, compressed.Length);
+
+            //var gzBuffer = new byte[compressed.Length + 4];
+            //Buffer.BlockCopy(compressed, 0, gzBuffer, 4, compressed.Length);
+            //Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gzBuffer, 0, 4);
+            //return Convert.ToBase64String(gzBuffer);
+        }
+
+        /// <summary>
+        /// FROM BASE 64
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        static string Decompress(string text)
+        {
+            var gzBuffer = Convert.FromBase64String(text);
+            return Encoding.UTF8.GetString(gzBuffer, 0, gzBuffer.Length);
+            //using (var ms = new MemoryStream())
+            //{
+            //    var msgLength = BitConverter.ToInt32(gzBuffer, 0);
+            //    ms.Write(gzBuffer, 4, gzBuffer.Length - 4);
+
+            //    var buffer = new byte[msgLength];
+
+            //    ms.Position = 0;
+            //    using (var zip = new GZipStream(ms, CompressionMode.Decompress))
+            //    {
+            //        zip.Read(buffer, 0, buffer.Length);
+            //    }
+
+            //    return Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+            //}
+        }
+
         T FromJson<T>(string json) where T : class 
         {
             return _fromJson(json, typeof(T)) as T;
@@ -699,7 +753,13 @@ namespace Realtime.Lobby
 
             Debug.Log("LobbyService:SendRPC " + message.GetType().Name);
 
-            _client.Send(channel, string.Format("{0}{1}{2}", key, Seperator, json));
+            SendInternal(channel, string.Format("{0}{1}{2}", key, Seperator, Compress(json)));
+        }
+
+        void SendInternal(string ch, string m)
+        {
+
+
         }
 
         void _client_OnUnsubscribed(string channel)
@@ -892,7 +952,7 @@ namespace Realtime.Lobby
             {
                 var proxy = message.Split(new[] { Seperator }, StringSplitOptions.None);
                 var type = LobbyMessage.GetTypeFromKey(int.Parse(proxy[0]));
-                var mjson = proxy[1];
+                var mjson = Decompress(proxy[1]);
 
                 if (type == null)
                     return;

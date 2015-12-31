@@ -438,12 +438,12 @@ namespace Realtime.Ortc
                     }
                     else
                     {
-                        message = message.Replace(Environment.NewLine, "\n");
 
                         if (channel != string.Empty && message != string.Empty)
                         {
                             try
                             {
+                                message = message.Replace(Environment.NewLine, "\n");
                                 var messageBytes = Encoding.UTF8.GetBytes(message);
                                 var messageParts = new List<string>();
                                 var pos = 0;
@@ -478,10 +478,7 @@ namespace Realtime.Ortc
 
                                 for (var i = 0; i < messageParts.Count; i++)
                                 {
-                                    var s = string.Format("send;{0};{1};{2};{3};{4}", _applicationKey,
-                                        _authenticationToken, channel, hash,
-                                        string.Format("{0}_{1}-{2}_{3}", messageId, i + 1, messageParts.Count,
-                                            messageParts[i]));
+                                    var s = string.Format("send;{0};{1};{2};{3};{4}", _applicationKey,_authenticationToken, channel, hash,string.Format("{0}_{1}-{2}_{3}", messageId, i + 1, messageParts.Count,messageParts[i]));
 
                                     DoSend(s);
                                 }

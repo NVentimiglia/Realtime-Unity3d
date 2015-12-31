@@ -14,21 +14,21 @@ namespace Realtime.Ortc.Internal
 {
     public class WebGLConnection : IWebSocketConnection
     {
-        #region Events (4)
+#region Events (4)
 
         public event OnOpenedDelegate OnOpened = delegate { };
         public event OnClosedDelegate OnClosed = delegate { };
         public event OnErrorDelegate OnError = delegate { };
         public event OnMessageDelegate OnMessage = delegate { };
 
-        #endregion
+#endregion
 
-        #region Attributes (1)
+#region Attributes (1)
 
         public bool IsOpen { get; set; }
         private WebGLBridge _websocket;
         private bool connected;
-        #endregion
+#endregion
 
         public void Dispose()
         {
@@ -36,7 +36,7 @@ namespace Realtime.Ortc.Internal
                 Close();
         }
 
-        #region Methods - Public (3)
+#region Methods - Public (3)
 
         public void Open(string url)
         {
@@ -108,7 +108,7 @@ namespace Realtime.Ortc.Internal
             }
         }
 
-        #endregion
+#endregion
     }
 }
 

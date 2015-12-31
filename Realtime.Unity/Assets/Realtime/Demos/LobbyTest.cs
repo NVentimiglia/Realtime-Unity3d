@@ -307,7 +307,10 @@ namespace Realtime.Demos
 
         void DoRPC()
         {
-            _lobby.SendLobbyRPC(new CustomRPC { Message = _lobby.User.UserName });
+            _lobby.SendLobbyRPC(new CustomRPC
+            {
+                Message = JsonUtility.ToJson(new CustomRPC { Message = "Hello"})
+            });
         }
 
         #endregion
