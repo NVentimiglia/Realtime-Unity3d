@@ -82,7 +82,7 @@ namespace Realtime.Ortc.Internal
             if (_websocket != null)
             {
                 // Wrap in quotes, escape inner quotes
-                _websocket.Send(string.Format("\"{0}\"", message.Replace("\"", "\\\"")));
+                _websocket.Send(string.Format("\"{0}\"", message));
             }
         }
 

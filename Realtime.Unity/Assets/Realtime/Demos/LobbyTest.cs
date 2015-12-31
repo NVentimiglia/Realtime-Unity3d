@@ -11,6 +11,7 @@ using Realtime.Lobby;
 using Realtime.Ortc;
 using Realtime.Ortc.Api;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Realtime.Demos
 {
@@ -34,12 +35,12 @@ namespace Realtime.Demos
         /// <summary>
         /// Identities your channel group
         /// </summary>
-        public string ApplicationKey = "BsnG6J";
+        public string ApplicationKey = "";
 
         /// <summary>
         /// Identities your channel group
         /// </summary>
-        public string PrivateKey = "BsnG6J";
+        public string PrivateKey = "";
 
         private IOrtcClient _ortc;
         private LobbyService _lobby;
@@ -256,7 +257,7 @@ namespace Realtime.Demos
         {
             _lobby.FindRooms(room =>
             {
-                Debug.Log("Found Room : "+ room.Room.RoomName);
+                Debug.Log("Found Room : " + room.Room.RoomName);
             });
         }
 
@@ -275,7 +276,7 @@ namespace Realtime.Demos
 
         void CreateRoom()
         {
-            _lobby.CreateRoom(_lobby.User.UserName, result =>
+            _lobby.CreateRoom(_lobby.User.UserName, SceneManager.GetActiveScene().name, true, result =>
             {
                 TerminalModel.LogImportant(result ? "Room Created !" : "Error");
             });

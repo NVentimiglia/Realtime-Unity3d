@@ -53,7 +53,7 @@ namespace Realtime.Ortc.Internal
         public void Send(string message)
         {
             // Wrap in quotes, escape inner quotes
-            Send(Id, string.Format("\"{0}\"", message.Replace("\"", "\\\"")));
+            Send(Id, string.Format("\"{0}\"", message));
         }
 
         //Called by native

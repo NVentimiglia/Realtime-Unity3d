@@ -70,7 +70,7 @@ namespace Realtime.Ortc.Internal
             RealtimeProxy.RunOnMainThread(() =>
             {
                 // Wrap in quotes, escape inner quotes
-                _javaObject.Call("Send", string.Format("\"{0}\"", message.Replace("\"", "\\\"")));
+                _javaObject.Call("Send", string.Format("\"{0}\"", message));
             });
         }
 

@@ -55,6 +55,16 @@ namespace Realtime.Lobby
         /// friendly name
         /// </summary>
         public string RoomName;
+
+        /// <summary>
+        /// Room Metadata
+        /// </summary>
+        public string RoomMetadata;
+
+        /// <summary>
+        /// Visible to lobby
+        /// </summary>
+        public bool Visible;
     }
 
     /// <summary>

@@ -183,7 +183,8 @@ namespace Realtime.Lobby
         {
             if (State == ConnectionState.Connected)
             {
-                Debug.LogError("Already Connected !");
+                Debug.LogWarning("Already Connected !");
+                callback(State);
                 return;
             }
 
@@ -351,8 +352,10 @@ namespace Realtime.Lobby
         /// Creates a new room
         /// </summary>
         /// <param name="name">friendly name</param>
+        /// <param name="metaData">additional property</param>
+        /// <param name="visible">visible to lobby</param>
         /// <param name="callback"></param>
-        public void CreateRoom(string name, Action<bool> callback)
+        public void CreateRoom(string name, string metaData, bool visible, Action<bool> callback)
         {
             if (State != ConnectionState.Connected)
             {
@@ -368,7 +371,9 @@ namespace Realtime.Lobby
             _pendingRoom = new RoomDetails
             {
                 RoomId = Guid.NewGuid().ToString(),
+                RoomMetadata = metaData,
                 RoomName = name,
+                Visible = visible,
             };
 
             EnablePresence(_pendingRoom.RoomId);
@@ -382,8 +387,9 @@ namespace Realtime.Lobby
         /// Updates the room
         /// </summary>
         /// <param name="name">friendly name</param>
-        /// <param name="properties"></param>
-        public void UpdateRoom(string name, Dictionary<string, string> properties)
+        /// <param name="metaData">additional property</param>
+        /// <param name="visible">visible to lobby</param>
+        public void UpdateRoom(string name, string metaData, bool visible)
         {
             if (State != ConnectionState.Connected)
             {
@@ -398,6 +404,8 @@ namespace Realtime.Lobby
             }
 
             Room.RoomName = name;
+            Room.RoomMetadata = metaData;
+            Room.Visible = visible;
 
             var details = LobbyMessage.GetDefault<RoomFindResponse>();
             details.Room = Room;
@@ -1060,7 +1068,12 @@ namespace Realtime.Lobby
         void OnFindRoomResponse(string channel, RoomFindResponse model)
         {
             Debug.Log("RoomFound - " + model.Room.RoomName + " " + model.Users.Length);
+           
+           if(!model.Room.Visible)
+                return;
+
             OnRoomFound(model);
+
             if (findCallback != null)
                 findCallback(model);
         }
