@@ -170,8 +170,12 @@ namespace Realtime.Lobby
         public static LobbyService Init(IOrtcClient client, string appKey, string privateKey, string url, bool isCluster)
         {
             //TODO Unity 5.2 and below, add your json serializer here
+#if UNITY_4_7
+            Debug.LogWarning("Please Add a JsonSerializer Here.");
+#else
             _toJson = JsonUtility.ToJson;
             _fromJson = JsonUtility.FromJson;
+#endif
 
             Instance = new LobbyService(client, appKey, privateKey, url, isCluster);
             return Instance;
@@ -236,9 +240,9 @@ namespace Realtime.Lobby
             _client.Disconnect();
         }
 
-        #endregion
+#endregion
 
-        #region Lobby
+#region Lobby
 
         /// <summary>
         /// Sends a request for rooms
@@ -317,9 +321,9 @@ namespace Realtime.Lobby
 
             LobbyUsers.Clear();
         }
-        #endregion
+#endregion
 
-        #region Room
+#region Room
 
         /// <summary>
         /// Subscribes to the lobby
@@ -460,9 +464,9 @@ namespace Realtime.Lobby
         {
             return user.IsAuthority;
         }
-        #endregion
+#endregion
 
-        #region sending
+#region sending
 
         /// <summary>
         /// Sends a [LobbyMessage] object
@@ -564,9 +568,9 @@ namespace Realtime.Lobby
 
         }
 
-        #endregion
+#endregion
 
-        #region receiving
+#region receiving
 
         /// <summary>
         /// Add a listener
@@ -588,11 +592,11 @@ namespace Realtime.Lobby
             LobbyMessenger<T>.Unsubscribe(callback);
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region internal
+#region internal
 
         IOrtcClient _client;
 
@@ -963,9 +967,9 @@ namespace Realtime.Lobby
 
         }
 
-        #endregion
+#endregion
 
-        #region Message Routes
+#region Message Routes
 
         void MapRoutes()
         {
@@ -1134,6 +1138,6 @@ namespace Realtime.Lobby
                 findCallback(model);
         }
 
-        #endregion
+#endregion
     }
 }

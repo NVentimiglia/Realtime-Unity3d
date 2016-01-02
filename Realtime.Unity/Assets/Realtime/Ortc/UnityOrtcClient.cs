@@ -303,7 +303,7 @@ namespace Realtime.Ortc
         /// </example>
         public void Connect(string appKey, string authToken)
         {
-            Debug.LogFormat("Ortc.Connect key:{0} token:{1}", appKey, authToken);
+            Debug.Log(string.Format("Ortc.Connect key:{0} token:{1}", appKey, authToken));
 
             #region Sanity Checks
 

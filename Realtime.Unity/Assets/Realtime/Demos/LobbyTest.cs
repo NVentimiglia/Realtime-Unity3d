@@ -11,7 +11,6 @@ using Realtime.Lobby;
 using Realtime.Ortc;
 using Realtime.Ortc.Api;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace Realtime.Demos
 {
@@ -276,7 +275,7 @@ namespace Realtime.Demos
 
         void CreateRoom()
         {
-            _lobby.CreateRoom(_lobby.User.UserName, SceneManager.GetActiveScene().name, true, result =>
+            _lobby.CreateRoom(_lobby.User.UserName, Application.loadedLevelName, true, result =>
             {
                 Terminal.LogImportant(result ? "Room Created !" : "Error");
             });
@@ -307,10 +306,14 @@ namespace Realtime.Demos
 
         void DoRPC()
         {
+#if UNITY_4_7
+            UnityEngine.Debug.LogWarning("Please Add a JsonSerializer Here.");
+#else
             _lobby.SendLobbyRPC(new CustomRPC
             {
-                Message = JsonUtility.ToJson(new CustomRPC { Message = "Hello"})
+                Message = JsonUtility.ToJson(new CustomRPC { Message = "Hello" })
             });
+#endif
         }
 
         #endregion

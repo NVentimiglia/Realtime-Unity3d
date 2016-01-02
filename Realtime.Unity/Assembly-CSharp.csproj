@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{6420D591-C6A1-7CCE-1604-82B3F06C4A43}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+	<BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_4_7_0;UNITY_4_7;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_UNITYEVENTS;ENABLE_NEW_HIERARCHY ;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;INCLUDE_IL2CPP;INCLUDE_WP8SUPPORT;ENABLE_MOVIES;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_4_6_FEATURES;INCLUDE_WP_BLUE_SUPPORT;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;UNITY5_SCRIPTING_IN_UNITY4;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_DUCK_TYPING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_MONO;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="System.Xml.Linq" />
+	<Reference Include="UnityEngine">
+	  <HintPath>D:/Program Files (x86)/Unity4/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>D:/Program Files (x86)/Unity4/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Realtime\Demos\LobbyTest.cs" />
+     <Compile Include="Assets\Realtime\Demos\OrtcTest.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\ClearCommand.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\ObservableList.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\SpamCommand.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\TerminalCommandView.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\TerminalItemView.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\TerminalView.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\Terminal.cs" />
+     <Compile Include="Assets\Realtime\Demos\_Terminal\TerminalModels.cs" />
+     <Compile Include="Assets\Realtime\Lobby\LobbyMessenger.cs" />
+     <Compile Include="Assets\Realtime\Lobby\LobbyModels.cs" />
+     <Compile Include="Assets\Realtime\Lobby\LobbyService.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\DotNetConnection.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\DroidConnection.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\HttpUtility.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\IOSConnection.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\IWebSocketConnection.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\MonoPInvokeCallbackAttribute.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\RealtimeDictionary.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\WSAConnection.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\WebGLBridge.cs" />
+     <Compile Include="Assets\Realtime\Ortc\Internal\WebGLConnection.cs" />
+     <Compile Include="Assets\Realtime\Ortc\UnityOrtcClient.cs" />
+     <Compile Include="Assets\Realtime\Ortc\UnityOrtcStartup.cs" />
+     <None Include="Assets\Realtime\README.txt" />
+     <None Include="Assets\README.txt" />
+ <Reference Include="UnityEngine.UI">
+ <HintPath>D:/Program Files (x86)/Unity4/Editor/Data/UnityExtensions/Unity/GUISystem/4.7.0/Standalone/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="Realtime.Ortc.Api">
+ <HintPath>E:/Projects/Realtime/Realtime.Unity3d/Realtime.Unity3d/Realtime.Unity/Assets/Realtime/Plugins/Realtime.Ortc.Api.dll</HintPath>
+ </Reference>
+ <Reference Include="websocket-sharp">
+ <HintPath>E:/Projects/Realtime/Realtime.Unity3d/Realtime.Unity3d/Realtime.Unity/Assets/Realtime/Plugins/websocket-sharp.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>

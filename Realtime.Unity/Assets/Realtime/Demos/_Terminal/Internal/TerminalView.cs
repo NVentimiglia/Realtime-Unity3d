@@ -119,7 +119,7 @@ namespace Foundation.Debuging.Internal
                 Commands_OnAdd(item);
             }
 
-            Application.logMessageReceived += HandlerLog;
+            Application.RegisterLogCallback(HandlerLog);
 
             if (DoDontDestoryOnLoad)
             {
@@ -145,8 +145,6 @@ namespace Foundation.Debuging.Internal
             Terminal.Instance.Commands.OnAdd -= Commands_OnAdd;
             Terminal.Instance.Commands.OnClear -= Commands_OnClear;
             Terminal.Instance.Commands.OnRemove -= Commands_OnRemove;
-
-            Application.logMessageReceived -= HandlerLog;
         }
 
         private void HandlerLog(string condition, string stackTrace, LogType type)
@@ -189,7 +187,7 @@ namespace Foundation.Debuging.Internal
         void Commands_OnAdd(TerminalCommand obj)
         {
             //inst
-            var instance = Instantiate(CommandPrototype.gameObject);
+            var instance = (GameObject)Instantiate(CommandPrototype.gameObject);
             var script = instance.GetComponent<TerminalCommandView>();
             script.Label.text = obj.Label;
             script.Handler = obj.Method;
@@ -232,7 +230,7 @@ namespace Foundation.Debuging.Internal
         {
 
             //inst
-            var instance = Instantiate(ItemPrototype.gameObject);
+            var instance = (GameObject)Instantiate(ItemPrototype.gameObject);
             var script = instance.GetComponent<TerminalItemView>();
             script.Label.text = obj.Text;
             script.Label.color = obj.Color;

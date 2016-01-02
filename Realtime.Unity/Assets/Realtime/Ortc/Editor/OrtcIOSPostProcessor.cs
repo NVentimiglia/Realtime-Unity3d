@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#if !UNITY_4_7
+using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
@@ -49,3 +50,4 @@ namespace Assets.Realtime.Ortc.Editor
         }
     }
 }
+#endif
