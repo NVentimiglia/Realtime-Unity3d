@@ -398,7 +398,7 @@ namespace Realtime.Demos
         {
             yield return 1;
 
-            PresenceClient.GetPresence(URLSSL, ClientIsCluster, AuthToken, ApplicationKey, Channel,
+            PresenceClient.GetPresence(URLSSL, ClientIsCluster, ApplicationKey, AuthToken, Channel,
                 (exception, presence) =>
                 {
                     if (exception)
