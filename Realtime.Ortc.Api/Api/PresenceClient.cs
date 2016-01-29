@@ -104,15 +104,14 @@ namespace Realtime.Ortc.Api
 
             yield return www;
 
-            if (!string.IsNullOrEmpty(www.error))
+            if (string.IsNullOrEmpty(www.error))
             {
                 callback(null, Deserialize(www.text));
             }
             else
             {
                 Debug.LogError(www.error);
-                callback(new OrtcException(OrtcExceptionReason.ConnectionError, "Failed to get presence from server"),
-                    null);
+                callback(new OrtcException(OrtcExceptionReason.ConnectionError, "Failed to get presence from server"),  null);
             }
         }
 
@@ -162,6 +161,8 @@ namespace Realtime.Ortc.Api
             var www = new WWW(presenceUrl, by);
 
             yield return www;
+
+            Debug.Log(www.text);
 
             if (string.IsNullOrEmpty(www.error))
             {

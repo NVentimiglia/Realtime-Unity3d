@@ -57,12 +57,6 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
@@ -84,7 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Realtime\Demos\LobbyTest.cs" />
-    <Compile Include="Assets\Realtime\Demos\OrtcTest.cs" />
+    <Compile Include="Assets\Realtime\Demos\OrtcExampleScene.cs" />
     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\ClearCommand.cs" />
     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\ObservableList.cs" />
     <Compile Include="Assets\Realtime\Demos\_Terminal\Internal\SpamCommand.cs" />
@@ -110,8 +104,8 @@
     <Compile Include="Assets\Realtime\Ortc\UnityOrtcStartup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\README.txt" />
     <None Include="Assets\Realtime\README.txt" />
+    <None Include="Assets\Realtime\Resources\README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
 </Project>
