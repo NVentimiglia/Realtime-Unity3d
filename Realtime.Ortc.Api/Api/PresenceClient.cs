@@ -92,13 +92,25 @@ namespace Realtime.Ortc.Api
 
         private static IEnumerator GetPresenceAsync(string server, string applicationKey, string authenticationToken,
             string channel, Action<OrtcException, Presence> callback)
-        {
+        {   
+            //Sanity
+            if (string.IsNullOrEmpty(applicationKey))
+            {
+                Debug.LogError("applicationKey is required");
+                callback(new OrtcException(OrtcExceptionReason.InvalidArguments, "applicationKey is required"), null);
+                yield break;
+            }
+            if (string.IsNullOrEmpty(channel))
+            {
+                Debug.LogError("channel is required");
+                callback(new OrtcException(OrtcExceptionReason.InvalidArguments, "channel is required"), null);
+                yield break;
+            }
             var presenceUrl = string.IsNullOrEmpty(server)
                 ? server
                 : server[server.Length - 1] == '/' ? server : server + "/";
 
-            presenceUrl = string.Format("{0}presence/{1}/{2}/{3}", presenceUrl, applicationKey, authenticationToken,
-                channel);
+            presenceUrl = string.Format("{0}presence/{1}/{2}/{3}", presenceUrl, applicationKey, authenticationToken, channel);
 
             var www = new WWW(presenceUrl);
 
@@ -118,10 +130,33 @@ namespace Realtime.Ortc.Api
         private static IEnumerator EnablePresenceAsync(string server, string applicationKey, string privateKey,
             string channel, bool metadata, Action<OrtcException, string> callback)
         {
+            //Sanity
+            if (string.IsNullOrEmpty(privateKey))
+            {
+                Debug.LogError("Private key is required");
+                callback(new OrtcException(OrtcExceptionReason.InvalidArguments, "Private key is required"), null);
+                yield break;
+            }
+            if (string.IsNullOrEmpty(applicationKey))
+            {
+                Debug.LogError("applicationKey is required");
+                callback(new OrtcException(OrtcExceptionReason.InvalidArguments, "applicationKey is required"), null);
+                yield break;
+            }
+            if (string.IsNullOrEmpty(channel))
+            {
+                Debug.LogError("channel is required");
+                callback(new OrtcException(OrtcExceptionReason.InvalidArguments, "channel is required"), null);
+                yield break;
+            }
+
+
             var presenceUrl = string.IsNullOrEmpty(server)
                 ? server
                 : server[server.Length - 1] == '/' ? server : server + "/";
             presenceUrl = string.Format("{0}presence/enable/{1}/{2}", presenceUrl, applicationKey, channel);
+
+
 
             var content = string.Format("privatekey={0}", privateKey);
 
