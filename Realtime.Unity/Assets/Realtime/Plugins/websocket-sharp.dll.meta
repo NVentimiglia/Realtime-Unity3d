@@ -1,5 +1,7 @@
 fileFormatVersion: 2
-guid: fab27f6f3517d470d9f19339ee67fc45
+guid: c02dacee306ef5a4eb87a89ade19e243
+timeCreated: 1454688387
+licenseType: Free
 PluginImporter:
   serializedVersion: 1
   iconMap: {}
@@ -12,9 +14,6 @@ PluginImporter:
         CPU: AnyCPU
     Any:
       enabled: 0
-      settings: {}
-    BlackBerry:
-      enabled: 1
       settings: {}
     Editor:
       enabled: 1
@@ -32,7 +31,8 @@ PluginImporter:
         CPU: x86_64
     LinuxUniversal:
       enabled: 1
-      settings: {}
+      settings:
+        CPU: AnyCPU
     OSXIntel:
       enabled: 1
       settings:
@@ -43,7 +43,8 @@ PluginImporter:
         CPU: AnyCPU
     OSXUniversal:
       enabled: 1
-      settings: {}
+      settings:
+        CPU: AnyCPU
     Web:
       enabled: 1
       settings: {}
@@ -59,9 +60,13 @@ PluginImporter:
       settings:
         CPU: AnyCPU
     WindowsStoreApps:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: AnyCPU
+        DontProcess: False
+        PlaceholderPath: 
+        SDK: AnySDK
+        ScriptingBackend: AnyScriptingBackend
     iOS:
       enabled: 1
       settings:

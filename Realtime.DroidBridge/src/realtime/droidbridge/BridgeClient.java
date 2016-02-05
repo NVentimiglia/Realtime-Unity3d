@@ -12,11 +12,10 @@ package realtime.droidbridge;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-//https://github.com/koush/AndroidAsync
-import com.koushikdutta.async.callback.CompletedCallback;
-import com.koushikdutta.async.http.AsyncHttpClient;
-import com.koushikdutta.async.http.WebSocket;
+import realtime.droidbridge.Websocket.*;
 
 public class BridgeClient
 {
@@ -71,61 +70,61 @@ public class BridgeClient
     // connect websocket
     public void Open(final String wsuri)
     {
-        AsyncHttpClient.getDefaultInstance().websocket(wsuri, "TLSv1.2", new AsyncHttpClient
-                .WebSocketConnectCallback()
-        {
+        try {
+            URI connectionUri = new URI(wsuri);
+            mConnection = new WebSocket(connectionUri);
+            addSocketEventsListener();
+            mConnection.connect();
+        } catch (WebSocketException e) {
+            RaiseError(instanceId, e.getMessage());
+        } catch (URISyntaxException e) {
+            RaiseError(instanceId, e.getMessage());
+        }
+    }
+
+
+    private void addSocketEventsListener() {
+        mConnection.setEventHandler(new WebSocketEventHandler() {
+
             @Override
-            public void onCompleted(Exception ex, WebSocket webSocket)
-            {
-                if (ex != null)
-                {
-                    Error(ex.toString());
-                    return;
+            public void onOpen() {
+                RaiseOpened(instanceId);
+            }
+
+            @Override
+            public void onMessage(WebSocketMessage socketMessage) {
+                try {
+                    RaiseMessage(instanceId, socketMessage.getText());
+                } catch (Exception e) {
+                    RaiseError(instanceId, e.getMessage());
                 }
+            }
 
-                mConnection = webSocket;
+            @Override
+            public void onClose() {
+                RaiseClosed(instanceId);
+                mConnection = null;
+            }
 
-                mHandler.post(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        RaiseOpened(instanceId);
-                    }
-                });
+            @Override
+            public void onForcedClose() {
+                RaiseClosed(instanceId);
+                mConnection = null;
+            }
 
-                webSocket.setClosedCallback(new CompletedCallback()
-                {
-                    @Override
-                    public void onCompleted(Exception e)
-                    {
-                        mHandler.post(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                RaiseClosed(instanceId);
-                                mConnection = null;
-                            }
-                        });
-                    }
-                });
+            @Override
+            public void onPing() {
 
+            }
 
-                webSocket.setStringCallback(new WebSocket.StringCallback()
-                {
-                    public void onStringAvailable(final String s)
-                    {
-                        mHandler.post(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                RaiseMessage(instanceId, s);
-                            }
-                        });
-                    }
-                });
+            @Override
+            public void onPong() {
+
+            }
+
+            @Override
+            public void onException(Exception error) {
+                RaiseMessage(instanceId, error.getMessage());
             }
         });
     }
@@ -141,7 +140,7 @@ public class BridgeClient
             @Override
             public void run()
             {
-                mConnection.close();
+                mConnection.close(true);
             }
         });
     }

@@ -3,7 +3,6 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Realtime_DroidBridge_jar</output-path>
     <root id="archive" name="Realtime.DroidBridge.jar">
       <element id="module-output" name="Realtime.DroidBridge" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/androidasync-2.1.6.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

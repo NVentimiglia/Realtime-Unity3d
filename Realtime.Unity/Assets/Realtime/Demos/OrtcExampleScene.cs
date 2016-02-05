@@ -47,6 +47,14 @@ namespace Realtime.Demos
         public string ApplicationKey = "";
 
         /// <summary>
+        /// Important
+        /// Dont publish your app with this.
+        /// This will allow users to authenticate themselves.
+        /// Authentication should take place on your authentication server
+        /// </summary>
+        public string PrivateKey = "";
+
+        /// <summary>
         /// Send / Subscribe channel
         /// </summary>
         public string Channel = "myChannel";
@@ -72,16 +80,6 @@ namespace Realtime.Demos
         public bool EnableReconnect = true;
 
         #region auth settings
-
-        // Note : this section should really be handled on a webserver you control. It is here only as education.
-
-        /// <summary>
-        /// Important
-        /// Dont publish your app with this.
-        /// This will allow users to authenticate themselves.
-        /// Authentication should take place on your authentication server
-        /// </summary>
-        public string PrivateKey = "";
 
         /// <summary>
         /// Approved channels
