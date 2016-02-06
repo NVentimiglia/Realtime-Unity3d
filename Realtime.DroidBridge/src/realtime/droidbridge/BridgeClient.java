@@ -18,6 +18,13 @@ import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.http.AsyncHttpClient;
 import com.koushikdutta.async.http.WebSocket;
 
+/*
+import java.io.InvalidClassException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import javax.net.ssl.SSLContext;
+*/
+
 public class BridgeClient
 {
 
@@ -71,63 +78,63 @@ public class BridgeClient
     // connect websocket
     public void Open(final String wsuri)
     {
-        AsyncHttpClient.getDefaultInstance().websocket(wsuri, "TLSv1.2", new AsyncHttpClient
-                .WebSocketConnectCallback()
-        {
-            @Override
-            public void onCompleted(Exception ex, WebSocket webSocket)
-            {
-                if (ex != null)
-                {
-                    Error(ex.toString());
-                    return;
-                }
+        /*
+        if (wsuri.startsWith("wss")) {
+            try {
+                SSLContext sslContext = null;
+                sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, null, null);
 
-                mConnection = webSocket;
-
-                mHandler.post(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        RaiseOpened(instanceId);
-                    }
-                });
-
-                webSocket.setClosedCallback(new CompletedCallback()
-                {
-                    @Override
-                    public void onCompleted(Exception e)
-                    {
-                        mHandler.post(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                RaiseClosed(instanceId);
-                                mConnection = null;
-                            }
-                        });
-                    }
-                });
-
-
-                webSocket.setStringCallback(new WebSocket.StringCallback()
-                {
-                    public void onStringAvailable(final String s)
-                    {
-                        mHandler.post(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                RaiseMessage(instanceId, s);
-                            }
-                        });
-                    }
-                });
+                AsyncHttpClient.getDefaultInstance().getSSLSocketMiddleware().setSSLContext(sslContext);
+            } catch (NoSuchAlgorithmException | KeyManagementException e) {
+                RaiseError(instanceId, e.getMessage());
             }
-        });
+        }*/
+
+        AsyncHttpClient.getDefaultInstance().websocket(wsuri, "TLSv1.2",
+                new AsyncHttpClient.WebSocketConnectCallback() {
+                    @Override
+                    public void onCompleted(Exception ex, WebSocket webSocket) {
+                        if (ex != null) {
+                            Error(ex.toString());
+                            return;
+                        }
+
+                        mConnection = webSocket;
+
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                RaiseOpened(instanceId);
+                            }
+                        });
+
+                        webSocket.setClosedCallback(new CompletedCallback() {
+                            @Override
+                            public void onCompleted(Exception e) {
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        RaiseClosed(instanceId);
+                                        mConnection = null;
+                                    }
+                                });
+                            }
+                        });
+
+
+                        webSocket.setStringCallback(new WebSocket.StringCallback() {
+                            public void onStringAvailable(final String s) {
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        RaiseMessage(instanceId, s);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
     }
 
     // disconnect websocker
