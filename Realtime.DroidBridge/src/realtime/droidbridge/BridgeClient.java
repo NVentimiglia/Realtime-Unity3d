@@ -15,6 +15,11 @@ import android.util.Log;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import realtime.websocket.WebSocket;
+import realtime.websocket.WebSocketEventHandler;
+import realtime.websocket.WebSocketException;
+import realtime.websocket.WebSocketMessage;
+
 public class BridgeClient
 {
 

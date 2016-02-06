@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011 Roderick Baier
+ *  Copyright (C) 2012 Roderick Baier
  *  
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,22 +14,28 @@
  *  limitations under the License. 
  */
 
-package realtime.droidbridge;
+package realtime.websocket;
 
 
-public class WebSocketException extends RuntimeException
+public interface WebSocketEventHandler
 {
-	private static final long serialVersionUID = 2L;
-
-
-	public WebSocketException(String message)
-	{
-		super(message);
-	}
+	public void onOpen();
 	
 	
-	public WebSocketException(String message, Throwable t)
-	{
-		super(message, t);
-	}
+	public void onMessage(WebSocketMessage message);
+	
+	
+	//public void onError(IOException exception);
+	
+	
+	public void onClose();
+
+    public void onForcedClose();
+
+	public void onPing();
+	
+	
+	public void onPong();
+
+    public void onException(Exception error);
 }

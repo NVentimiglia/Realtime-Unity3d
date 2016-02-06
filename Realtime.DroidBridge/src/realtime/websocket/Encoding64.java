@@ -1,4 +1,4 @@
-package realtime.droidbridge;
+package realtime.websocket;
 
 /**
  * <p>Encodes and decodes to and from Encoding64 notation.</p>

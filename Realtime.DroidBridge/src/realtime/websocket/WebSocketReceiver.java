@@ -14,7 +14,7 @@
  *  limitations under the License. 
  */
 
-package realtime.droidbridge;
+package realtime.websocket;
 
 import java.io.DataInputStream;
 import java.io.IOException;

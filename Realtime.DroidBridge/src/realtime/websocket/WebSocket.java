@@ -14,7 +14,7 @@
  *  limitations under the License. 
  */
 
-package realtime.droidbridge;
+package realtime.websocket;
 
 import android.util.Log;
 import static android.util.Log.DEBUG;
