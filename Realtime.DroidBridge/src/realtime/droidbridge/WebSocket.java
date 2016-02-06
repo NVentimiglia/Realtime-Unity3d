@@ -14,12 +14,11 @@
  *  limitations under the License. 
  */
 
-package realtime.droidbridge.Websocket;
+package realtime.droidbridge;
 
 import android.util.Log;
 import static android.util.Log.DEBUG;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;

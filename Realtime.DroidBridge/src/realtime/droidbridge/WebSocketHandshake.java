@@ -14,7 +14,7 @@
  *  limitations under the License. 
  */
 
-package realtime.droidbridge.Websocket;
+package realtime.droidbridge;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -92,7 +92,7 @@ public class WebSocketHandshake
 		for (int i = 0; i < 16; i++) {
 			nonce[i] = (byte) rand(0, 255);
 		}
-		return Base64.encodeBytes(nonce);
+		return Encoding64.encodeBytes(nonce);
 	}
 
 	public void verifyServerStatusLine(String statusLine)

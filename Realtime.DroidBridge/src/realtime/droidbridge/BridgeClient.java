@@ -15,8 +15,6 @@ import android.util.Log;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import realtime.droidbridge.Websocket.*;
-
 public class BridgeClient
 {
 

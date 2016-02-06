@@ -1,4 +1,4 @@
-package realtime.droidbridge.Websocket;
+package realtime.droidbridge;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
