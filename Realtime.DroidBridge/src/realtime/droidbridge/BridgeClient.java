@@ -127,6 +127,7 @@ public class BridgeClient
 
             @Override
             public void onException(Exception error) {
+
                 RaiseMessage(instanceId, error.getMessage());
             }
         });
