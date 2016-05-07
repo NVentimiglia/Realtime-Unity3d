@@ -75,19 +75,22 @@ namespace Realtime.Ortc.Api
             Action[] actions;
             lock (_syncLock)
             {
-                actions = _oneTime.ToArray();
+                actions = _oneTime.Count > 0 ? _oneTime.ToArray() : null;
                 _oneTime.Clear();
             }
 
-            for (var i = 0; i < actions.Length; i++)
+            if(actions != null)
             {
-                try
+                for (var i = 0; i < actions.Length; i++)
                 {
-                    actions[i]();
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError(ex);
+                    try
+                    {
+                        actions[i]();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError(ex);
+                    }
                 }
             }
         }
